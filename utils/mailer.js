@@ -66,3 +66,21 @@ exports.resolvedNotify = (user, c, resolvedBy) => {
       `${row("Student", `${user.username} (${user.hostel_no || c.hostel_no}, Room ${user.room_no || "-"})`)}
        ${row("Title", c.title)}${row("Category", c.category)}${row("Resolved by", by)}`));
 };
+
+// Complaint reopen hone par student AUR admin dono ko email
+exports.reopenedNotify = (user, c) => {
+  // student ko
+  send(user.email, `Your complaint was reopened: ${c.title}`,
+    wrap("Complaint reopened 🔁",
+      `<p>Hi ${esc(user.username)}, your complaint has been reopened and the warden has been notified.</p>
+       ${row("Title", c.title)}${row("Category", c.category)}
+       ${row("Your reason", c.reopenReason)}${row("Priority", c.priority)}`));
+
+  // admin ko
+  send(process.env.ADMIN_EMAIL, `[${c.priority}] Reopened (${c.reopenCount}x): ${c.title}`,
+    wrap("Complaint reopened",
+      `${row("Student", `${user.username} (${user.hostel_no || c.hostel_no}, Room ${user.room_no || "-"})`)}
+       ${row("Title", c.title)}${row("Category", c.category)}
+       ${row("Times reopened", c.reopenCount)}${row("Priority", c.priority)}
+       ${row("Student says", c.reopenReason)}`));
+};

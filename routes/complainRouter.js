@@ -120,6 +120,7 @@ router.post("/reopen/:id", async (req, res) => {
         complaint.priority = NEXT_PRIORITY[complaint.priority] || complaint.priority;
       }
       await complaint.save();
+      mail.reopenedNotify(req.user, complaint);
       message = "Complaint reopened. The warden will look at it again.";
     }
 
