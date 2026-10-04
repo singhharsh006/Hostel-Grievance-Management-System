@@ -1,0 +1,58 @@
+<%
+  var _a = (typeof user !== 'undefined' && user) ? user : {};
+  var _aname = _a.username || 'Warden';
+  var _ainitial = String(_aname).trim().charAt(0).toUpperCase() || 'W';
+  var _aactive = (typeof active !== 'undefined') ? active : '';
+%>
+<header class="nb">
+  <div class="nb-in">
+    <a class="nb-logo" href="/admin/home"><img src="/college-logo.png" alt="GLBITM logo" /></a>
+
+    <nav class="nb-links">
+      <a href="/admin/home" class="<%= _aactive === 'dash' ? 'on' : '' %>">Dashboard</a>
+      <a href="/admin/analytics" class="<%= _aactive === 'analytics' ? 'on' : '' %>">Analytics</a>
+    </nav>
+
+    <div class="nb-right">
+      <button type="button" class="avatar-btn" id="avatarBtn" aria-haspopup="true" aria-expanded="false">
+        <span class="avatar"><%= _ainitial %></span>
+        <span class="avatar-name"><%= _aname %></span>
+        <svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+
+      <div class="menu" id="avatarMenu" hidden>
+        <div class="menu-head">
+          <b><%= _aname %></b>
+          <% if (_a.hostel_no) { %><span class="menu-chip">Warden &middot; <%= _a.hostel_no %></span><% } %>
+        </div>
+
+        <div class="menu-mobile-only">
+          <a href="/admin/home">Dashboard</a>
+          <a href="/admin/analytics">Analytics</a>
+          <div class="menu-sep"></div>
+        </div>
+
+        <form action="/user/logout" method="POST">
+          <button type="submit" class="menu-item danger">Log out</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</header>
+
+<script>
+  (function () {
+    var b = document.getElementById("avatarBtn");
+    var m = document.getElementById("avatarMenu");
+    if (!b || !m) return;
+    function close() { m.hidden = true; b.setAttribute("aria-expanded", "false"); }
+    b.addEventListener("click", function (e) {
+      e.stopPropagation();
+      var willOpen = m.hidden;
+      m.hidden = !willOpen;
+      b.setAttribute("aria-expanded", String(willOpen));
+    });
+    document.addEventListener("click", function (e) { if (!m.contains(e.target)) close(); });
+    document.addEventListener("keydown", function (e) { if (e.key === "Escape") close(); });
+  })();
+</script>

@@ -1385,3 +1385,279 @@ a.btn.btn-ghost:hover {
     grid-template-columns: 1fr;
   }
 }
+
+/* ---------- Admin dashboard ---------- */
+.ad-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.ad-stats .dh-stat b {
+  font-size: 36px;
+}
+
+.ar-list {
+  display: grid;
+  gap: 12px;
+}
+
+.ar {
+  background: #151b2b;
+  border: 1px solid #263049;
+  border-left: 4px solid #44516f;
+  border-radius: 12px;
+  padding: 16px 24px;
+}
+
+.ar.ar-urgent {
+  border-left-color: #f0616d;
+}
+
+.ar.ar-high {
+  border-left-color: #f26b2a;
+}
+
+.ar.ar-medium {
+  border-left-color: #f5b942;
+}
+
+.ar.ar-low {
+  border-left-color: #3dd6a0;
+}
+
+.ar-main {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px 24px;
+  align-items: start;
+}
+
+.ar-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #e8ebf2;
+  overflow-wrap: anywhere;
+}
+
+.ar-desc {
+  margin: 4px 0 0;
+  color: #9aa4ba;
+  font-size: 14px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.ar-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.ar-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+  margin-top: 12px;
+  color: #9aa4ba;
+  font-size: 13px;
+}
+
+.ar-meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #263049;
+}
+
+.ar-actions form {
+  margin: 0;
+}
+
+.ar-affected {
+  color: #f5b942;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.ar details {
+  margin-top: 12px;
+}
+
+.ar summary {
+  cursor: pointer;
+  color: #f26b2a;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.ar-panel {
+  display: grid;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.ar-two {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.ar-panel label {
+  display: grid;
+  gap: 8px;
+  font-size: 14px;
+  color: #9aa4ba;
+  font-weight: 600;
+}
+
+.ar-panel .field {
+  width: 100%;
+}
+
+.ar-panel textarea.field {
+  min-height: 72px;
+  font-family: inherit;
+}
+
+.ar-panel button {
+  justify-self: start;
+}
+
+.ar-full {
+  margin: 0;
+  color: #e8ebf2;
+  font-size: 14px;
+  line-height: 1.5;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 860px) {
+  .ad-stats {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .ar-main {
+    grid-template-columns: 1fr;
+  }
+
+  .ar-badges {
+    justify-content: flex-start;
+  }
+
+  .ar-two {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------- Analytics page ---------- */
+.an-intro {
+  max-width: 640px;
+  color: #9aa4ba;
+  font-size: 16px;
+  line-height: 1.6;
+  margin: 8px 0 0;
+}
+
+.an-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.an-stats .dh-stat b {
+  font-size: 36px;
+}
+
+.an-stats .dh-stat small {
+  display: block;
+  margin-top: 8px;
+  color: #9aa4ba;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.an-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.an-card {
+  background: #151b2b;
+  border: 1px solid #263049;
+  border-radius: 16px;
+  padding: 24px;
+}
+
+.an-card.wide {
+  grid-column: 1 / -1;
+}
+
+.an-card h3 {
+  margin: 0 0 4px;
+  font-family: "Bricolage Grotesque", sans-serif;
+  font-size: 20px;
+  color: #e8ebf2;
+}
+
+.an-card .an-hint {
+  margin: 0 0 24px;
+  color: #9aa4ba;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.an-chart {
+  position: relative;
+  height: 280px;
+}
+
+.an-card.wide .an-chart {
+  height: 320px;
+}
+
+.an-note {
+  margin-top: 32px;
+  padding: 16px 24px;
+  border: 1px solid #263049;
+  border-left: 3px solid #5aa9ff;
+  border-radius: 12px;
+  background: #1c2438;
+  color: #9aa4ba;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.an-note strong {
+  color: #5aa9ff;
+}
+
+@media (max-width: 860px) {
+  .an-stats {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .an-grid {
+    grid-template-columns: 1fr;
+  }
+}

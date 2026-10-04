@@ -1,64 +1,153 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Complaint Analytics</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Analytics | GLBITM Hostel Complaint Portal</title>
+  <link rel="stylesheet" href="/theme.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 </head>
-<body class="bg-red-50 min-h-screen p-6">
-<div class="max-w-6xl mx-auto">
-  <div class="flex flex-wrap justify-between items-center gap-3 mb-6">
-    <div>
-      <h1 class="text-2xl font-bold text-red-700">Complaint Analytics</h1>
-      <p class="text-gray-600 text-sm">Hostel: <%= hostel %></p>
+
+<body class="theme">
+
+  <%- include('partials/adminNavbar', { active: 'analytics' }) %>
+
+  <main class="page dh-main">
+    <div class="page-head">
+      <div>
+        <h1>Analytics</h1>
+        <p class="muted">Hostel: <%= hostel %></p>
+        <p class="an-intro">See how complaints in your hostel are trending, which problems come up most, and how quickly they get fixed. Change the period on the right to zoom in or out.</p>
+      </div>
+      <div class="toolbar">
+        <label class="label" for="days" style="margin:0">Period</label>
+        <select id="days" class="field">
+          <option value="7">Last 7 days</option>
+          <option value="30" selected>Last 30 days</option>
+          <option value="90">Last 90 days</option>
+          <option value="365">Last year</option>
+        </select>
+        <a class="btn btn-ghost" href="/admin/home">Back to dashboard</a>
+      </div>
     </div>
-    <div class="flex gap-2">
-      <a href="/admin/home" class="border rounded-lg px-4 py-2 bg-white">← Back</a>
-      <select id="days" class="border rounded-lg px-3 py-2 bg-white">
-        <option value="7">Last 7 days</option><option value="30" selected>Last 30 days</option>
-        <option value="90">Last 90 days</option><option value="365">Last year</option>
-      </select>
+
+    <div class="an-stats" id="kpis"></div>
+
+    <div class="an-grid">
+      <div class="an-card wide">
+        <h3>Complaints over time</h3>
+        <p class="an-hint">A rising line means more problems are being reported. Look for spikes after events like mess changes or power cuts.</p>
+        <div class="an-chart"><canvas id="trend"></canvas></div>
+      </div>
+
+      <div class="an-card">
+        <h3>By category</h3>
+        <p class="an-hint">The biggest slice is the area that needs the most attention.</p>
+        <div class="an-chart"><canvas id="cat"></canvas></div>
+      </div>
+
+      <div class="an-card">
+        <h3>By status</h3>
+        <p class="an-hint">How many complaints are still waiting, being worked on, or done.</p>
+        <div class="an-chart"><canvas id="status"></canvas></div>
+      </div>
+
+      <div class="an-card">
+        <h3>By priority</h3>
+        <p class="an-hint">Priority is set automatically and rises on its own if a complaint stays open too long.</p>
+        <div class="an-chart"><canvas id="prio"></canvas></div>
+      </div>
+
+      <div class="an-card">
+        <h3>Average resolution time (hours)</h3>
+        <p class="an-hint">How long each category takes to fix, on average. Shorter bars are better.</p>
+        <div class="an-chart"><canvas id="res"></canvas></div>
+      </div>
     </div>
-  </div>
-  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6" id="kpis"></div>
-  <div class="grid md:grid-cols-2 gap-4">
-    <div class="bg-white rounded-2xl p-4 shadow md:col-span-2"><h3 class="font-semibold mb-2">Complaints over time</h3><canvas id="trend" height="90"></canvas></div>
-    <div class="bg-white rounded-2xl p-4 shadow"><h3 class="font-semibold mb-2">By category</h3><canvas id="cat"></canvas></div>
-    <div class="bg-white rounded-2xl p-4 shadow"><h3 class="font-semibold mb-2">By status</h3><canvas id="status"></canvas></div>
-    <div class="bg-white rounded-2xl p-4 shadow"><h3 class="font-semibold mb-2">By priority</h3><canvas id="prio"></canvas></div>
-    <div class="bg-white rounded-2xl p-4 shadow"><h3 class="font-semibold mb-2">Avg. resolution time (hours)</h3><canvas id="res"></canvas></div>
-  </div>
-</div>
-<script>
-const charts = {};
-const COLORS = ['#2563eb','#dc2626','#f59e0b','#10b981','#8b5cf6','#06b6d4','#ec4899'];
-function draw(id, type, labels, data, label) {
-  if (charts[id]) charts[id].destroy();
-  const round = type === 'pie' || type === 'doughnut';
-  charts[id] = new Chart(document.getElementById(id), {
-    type,
-    data: { labels, datasets: [{ label, data, backgroundColor: type === 'line' ? 'rgba(37,99,235,.15)' : COLORS, borderColor: '#2563eb', fill: type === 'line', tension: .3 }] },
-    options: { plugins: { legend: { display: round } }, scales: round ? {} : { y: { beginAtZero: true, ticks: { precision: 0 } } } }
-  });
-}
-const kpi = (l, v, c) => `<div class="bg-white rounded-2xl p-4 shadow"><div class="text-xs text-gray-500 font-semibold">${l}</div><div class="text-3xl font-bold ${c}">${v}</div></div>`;
-async function load() {
-  const r = await fetch('/admin/analytics/data?days=' + document.getElementById('days').value);
-  if (!r.ok) return alert('Could not load analytics');
-  const d = await r.json();
-  document.getElementById('kpis').innerHTML =
-    kpi('TOTAL', d.totals.total, 'text-blue-600') + kpi('OPEN', d.totals.open, 'text-amber-500') +
-    kpi('RESOLUTION RATE', d.totals.resolutionRate + '%', 'text-green-600') + kpi('AVG. FIX TIME', d.totals.avgResolutionHours + 'h', 'text-purple-600');
-  draw('trend', 'line', d.trend.map(x => x._id), d.trend.map(x => x.n), 'Complaints');
-  draw('cat', 'doughnut', d.byCategory.map(x => x._id), d.byCategory.map(x => x.n));
-  draw('status', 'pie', d.byStatus.map(x => x._id), d.byStatus.map(x => x.n));
-  draw('prio', 'bar', d.byPriority.map(x => x._id), d.byPriority.map(x => x.n), 'Complaints');
-  draw('res', 'bar', d.resolution.map(x => x._id), d.resolution.map(x => +x.avgHours.toFixed(1)), 'Hours');
-}
-document.getElementById('days').onchange = load;
-load();
-</script>
+
+    <div class="an-note">
+      <strong>Tip:</strong> Numbers cover only the selected period. If a chart looks empty, try a longer period.
+    </div>
+  </main>
+
+  <footer class="pagefoot">
+    <div class="wrap">
+      Developed by <strong>Harsh Kumar Singh</strong><br />
+      GL Bajaj Institute of Technology &amp; Management, Greater Noida
+    </div>
+  </footer>
+
+  <script>
+    // ---------- Dark theme defaults for every chart ----------
+    Chart.defaults.color = '#9aa4ba';
+    Chart.defaults.borderColor = '#263049';
+    Chart.defaults.font.family = 'Manrope, sans-serif';
+
+    const charts = {};
+    const PALETTE = ['#f26b2a', '#5aa9ff', '#3dd6a0', '#f5b942', '#f0616d', '#9aa4ba', '#44516f'];
+    const PRIORITY_COLORS = { Urgent: '#f0616d', High: '#f26b2a', Medium: '#f5b942', Low: '#3dd6a0' };
+    const STATUS_COLORS = { 'not resolved': '#f0616d', 'in progress': '#5aa9ff', 'resolved': '#3dd6a0' };
+
+    function draw(id, type, labels, data, label, colors) {
+      if (charts[id]) charts[id].destroy();
+      const round = type === 'pie' || type === 'doughnut';
+      const bg = colors || PALETTE;
+      charts[id] = new Chart(document.getElementById(id), {
+        type,
+        data: {
+          labels,
+          datasets: [{
+            label,
+            data,
+            backgroundColor: type === 'line' ? 'rgba(242,107,42,.15)' : bg,
+            borderColor: type === 'line' ? '#f26b2a' : (round ? '#151b2b' : bg),
+            borderWidth: round ? 2 : (type === 'line' ? 2 : 0),
+            borderRadius: type === 'bar' ? 6 : 0,
+            pointBackgroundColor: '#f26b2a',
+            fill: type === 'line',
+            tension: 0.3
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: round, position: 'bottom', labels: { padding: 16, boxWidth: 12 } } },
+          scales: round ? {} : {
+            y: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: '#263049' } },
+            x: { grid: { display: false } }
+          }
+        }
+      });
+    }
+
+    const kpi = (label, value, hint, accent) =>
+      '<div class="dh-stat' + (accent ? ' accent' : '') + '"><b>' + value + '</b><span>' + label + '</span><small>' + hint + '</small></div>';
+
+    async function load() {
+      const r = await fetch('/admin/analytics/data?days=' + document.getElementById('days').value);
+      if (!r.ok) return alert('Could not load analytics');
+      const d = await r.json();
+
+      document.getElementById('kpis').innerHTML =
+        kpi('Total complaints', d.totals.total, 'Raised in this period', true) +
+        kpi('Still open', d.totals.open, 'Waiting for a fix') +
+        kpi('Resolution rate', d.totals.resolutionRate + '%', 'Share of complaints resolved') +
+        kpi('Average fix time', d.totals.avgResolutionHours + 'h', 'From complaint to resolved');
+
+      draw('trend', 'line', d.trend.map(x => x._id), d.trend.map(x => x.n), 'Complaints');
+      draw('cat', 'doughnut', d.byCategory.map(x => x._id), d.byCategory.map(x => x.n));
+      draw('status', 'pie', d.byStatus.map(x => x._id), d.byStatus.map(x => x.n), '',
+        d.byStatus.map((x, i) => STATUS_COLORS[x._id] || PALETTE[i % PALETTE.length]));
+      draw('prio', 'bar', d.byPriority.map(x => x._id), d.byPriority.map(x => x.n), 'Complaints',
+        d.byPriority.map((x, i) => PRIORITY_COLORS[x._id] || PALETTE[i % PALETTE.length]));
+      draw('res', 'bar', d.resolution.map(x => x._id), d.resolution.map(x => +x.avgHours.toFixed(1)), 'Hours',
+        d.resolution.map(() => '#5aa9ff'));
+    }
+
+    document.getElementById('days').onchange = load;
+    load();
+  </script>
 </body>
+
 </html>

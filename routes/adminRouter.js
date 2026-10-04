@@ -89,7 +89,7 @@ router.post("/resolve/:id", authMiddleareAdmin, upload.single("resolutionImage")
 
 // ===== Analytics (scoped to the admin's hostel) =====
 router.get("/analytics", authMiddleareAdmin, (req, res) => {
-  res.render("analytics", { hostel: req.user.hostel_no || "All hostels" });
+  res.render("analytics", { hostel: req.user.hostel_no || "All hostels", user: req.user });
 });
 
 router.get("/analytics/data", authMiddleareAdmin, async (req, res) => {
