@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Complaint Analytics</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body class="bg-red-50 min-h-screen p-6">
+<div class="max-w-6xl mx-auto">
+  <div class="flex flex-wrap justify-between items-center gap-3 mb-6">
+    <div>
+      <h1 class="text-2xl font-bold text-red-700">Complaint Analytics</h1>
+      <p class="text-gray-600 text-sm">Hostel: <%= hostel %></p>
+    </div>
+    <div class="flex gap-2">
+      <a href="/admin/home" class="border rounded-lg px-4 py-2 bg-white">← Back</a>
+      <select id="days" class="border rounded-lg px-3 py-2 bg-white">
+        <option value="7">Last 7 days</option><option value="30" selected>Last 30 days</option>
+        <option value="90">Last 90 days</option><option value="365">Last year</option>
+      </select>
+    </div>
+  </div>
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6" id="kpis"></div>
+  <div class="grid md:grid-cols-2 gap-4">
+    <div class="bg-white rounded-2xl p-4 shadow md:col-span-2"><h3 class="font-semibold mb-2">Complaints over time</h3><canvas id="trend" height="90"></canvas></div>
+    <div class="bg-white rounded-2xl p-4 shadow"><h3 class="font-semibold mb-2">By category</h3><canvas id="cat"></canvas></div>
+    <div class="bg-white rounded-2xl p-4 shadow"><h3 class="font-semibold mb-2">By status</h3><canvas id="status"></canvas></div>
+    <div class="bg-white rounded-2xl p-4 shadow"><h3 class="font-semibold mb-2">By priority</h3><canvas id="prio"></canvas></div>
+    <div class="bg-white rounded-2xl p-4 shadow"><h3 class="font-semibold mb-2">Avg. resolution time (hours)</h3><canvas id="res"></canvas></div>
+  </div>
+</div>
+<script>
+const charts = {};
+const COLORS = ['#2563eb','#dc2626','#f59e0b','#10b981','#8b5cf6','#06b6d4','#ec4899'];
+function draw(id, type, labels, data, label) {
+  if (charts[id]) charts[id].destroy();
+  const round = type === 'pie' || type === 'doughnut';
+  charts[id] = new Chart(document.getElementById(id), {
+    type,
+    data: { labels, datasets: [{ label, data, backgroundColor: type === 'line' ? 'rgba(37,99,235,.15)' : COLORS, borderColor: '#2563eb', fill: type === 'line', tension: .3 }] },
+    options: { plugins: { legend: { display: round } }, scales: round ? {} : { y: { beginAtZero: true, ticks: { precision: 0 } } } }
+  });
+}
+const kpi = (l, v, c) => `<div class="bg-white rounded-2xl p-4 shadow"><div class="text-xs text-gray-500 font-semibold">${l}</div><div class="text-3xl font-bold ${c}">${v}</div></div>`;
+async function load() {
+  const r = await fetch('/admin/analytics/data?days=' + document.getElementById('days').value);
+  if (!r.ok) return alert('Could not load analytics');
+  const d = await r.json();
+  document.getElementById('kpis').innerHTML =
+    kpi('TOTAL', d.totals.total, 'text-blue-600') + kpi('OPEN', d.totals.open, 'text-amber-500') +
+    kpi('RESOLUTION RATE', d.totals.resolutionRate + '%', 'text-green-600') + kpi('AVG. FIX TIME', d.totals.avgResolutionHours + 'h', 'text-purple-600');
+  draw('trend', 'line', d.trend.map(x => x._id), d.trend.map(x => x.n), 'Complaints');
+  draw('cat', 'doughnut', d.byCategory.map(x => x._id), d.byCategory.map(x => x.n));
+  draw('status', 'pie', d.byStatus.map(x => x._id), d.byStatus.map(x => x.n));
+  draw('prio', 'bar', d.byPriority.map(x => x._id), d.byPriority.map(x => x.n), 'Complaints');
+  draw('res', 'bar', d.resolution.map(x => x._id), d.resolution.map(x => +x.avgHours.toFixed(1)), 'Hours');
+}
+document.getElementById('days').onchange = load;
+load();
+</script>
+</body>
+</html>

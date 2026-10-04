@@ -8,16 +8,15 @@
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-blue-50 min-h-screen flex flex-col items-center py-10">
-       <div>
+  <div>
     <div class="absolute top-4 right-4">
       <form action="/user/logout" method="POST" class="inline">
-    <button type="submit" 
-        class="text-red-500 font-bold py-2 px-4 ">
-        Logout
-    </button>
-</form>
+        <button type="submit" class="text-red-500 font-bold py-2 px-4 ">
+          Logout
+        </button>
+      </form>
     </div>
-   </div>
+  </div>
   <img src="/college-logo.png" alt="Hostel Complaint Portal Logo" class="mb-6 w-40 h-40 object-contain" />
   <h1 class="mb-5 text-center text-2xl text-blue-700 sm:text-3xl font-bold">
     GLBITM Hostel Complaint Portal
@@ -36,18 +35,23 @@
     <div class="sm:hidden px-4 mt-4">
       <select id="complaintSelect" class="w-full border border-blue-600 bg-blue-500 text-white rounded-lg px-6 py-5 pr-12 shadow">
         <option value="recent">Recent Complaints</option>
-        <option value="my" >My Complaints</option>
+        <option value="my">My Complaints</option>
         <option value="add" selected>Add Complaint</option>
       </select>
     </div>
   </div>
 
-
-
   <!-- Complaint Form -->
-  <div id="complaintForm" class=" mt-6 w-full max-w-lg bg-white p-6 rounded-lg shadow ">
+  <div id="complaintForm" class="mt-6 w-full max-w-lg bg-white p-6 rounded-lg shadow">
     <h2 class="text-xl font-bold text-blue-600 mb-4">Add Your Complaint</h2>
-    <form action="/complaint/add" method="POST">
+
+    <% if (typeof error !== "undefined" && error) { %>
+      <div class="mb-4 rounded border border-red-300 bg-red-50 text-red-700 px-4 py-3 text-sm">
+        <%= error %>
+      </div>
+    <% } %>
+
+    <form id="complaintFormEl" action="/complaint/add" method="POST" enctype="multipart/form-data">
       <label class="block mb-2 font-medium">Category:</label>
       <select name="category" class="w-full border border-gray-300 rounded p-2 mb-4" required>
         <option value="">Select a category</option>
@@ -65,70 +69,115 @@
       <label class="block mb-2 font-medium">Description:</label>
       <textarea name="description" class="w-full border border-gray-300 rounded p-2 mb-4" rows="4" required></textarea>
 
-      <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Submit</button>
+      <label class="block mb-2 font-medium">Photo <span class="text-gray-400 font-normal">(optional)</span>:</label>
+      <input id="photoInput" name="image" type="file" accept="image/jpeg,image/png,image/webp"
+        class="w-full border border-gray-300 rounded p-2 mb-1 text-sm bg-gray-50" />
+      <p class="text-xs text-gray-500 mb-2">JPG, PNG or WEBP, up to 2 MB.</p>
+      <p id="photoError" class="text-sm text-red-600 mb-2 hidden"></p>
+
+      <div id="photoPreviewWrap" class="hidden mb-4">
+        <img id="photoPreview" alt="Selected photo preview" class="max-h-48 w-auto rounded-lg border border-gray-200" />
+        <button type="button" id="photoRemove" class="block mt-2 text-sm text-red-600 hover:underline">Remove photo</button>
+      </div>
+
+      <p class="text-xs text-gray-500 mb-4">Priority is set automatically from your title and description.</p>
+
+      <button id="submitBtn" type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Submit</button>
     </form>
   </div>
 
   <script>
-   
-
     // Button elements
     const recentBtn = document.getElementById('recentComplaintBtn');
     const myBtn = document.getElementById('myComplaintBtn');
     const addBtn = document.getElementById('addComplaintBtn');
-
-    // Dropdown
     const complaintSelect = document.getElementById('complaintSelect');
 
-    // Show/hide sections utility
     function setActiveButton(activeSection) {
-    const map = {
-        recent: recentBtn,
-        my: myBtn,
-        add: addBtn
-    };
+      const map = { recent: recentBtn, my: myBtn, add: addBtn };
 
-    [recentBtn, myBtn, addBtn].forEach(btn => {
+      [recentBtn, myBtn, addBtn].forEach(btn => {
         btn.classList.remove("bg-blue-600", "text-white");
         btn.classList.add("bg-white", "text-blue-600");
-    });
+      });
 
-    if (map[activeSection]) {
+      if (map[activeSection]) {
         map[activeSection].classList.add("bg-blue-600", "text-white");
         map[activeSection].classList.remove("bg-white", "text-blue-600");
+      }
     }
-}
+
     function showSection(section) {
       if (section === 'recent') {
-        // Redirect for recent complaints
         window.location.href = '/user/home';
       } else if (section === 'my') {
         window.location.href = '/complaint/myComplaints';
       } else if (section === 'add') {
         window.location.href = '/complaint/add';
       }
-      setActiveButton(section);
     }
 
-   
-
-    // Button click handlers
     recentBtn.addEventListener('click', () => showSection('recent'));
     myBtn.addEventListener('click', () => showSection('my'));
     addBtn.addEventListener('click', () => showSection('add'));
+    complaintSelect.addEventListener('change', (e) => showSection(e.target.value));
 
-    // Dropdown change handler
-    complaintSelect.addEventListener('change', (e) => {
-      showSection(e.target.value);
+    // This page is "Add Complaint", so highlight that tab
+    setActiveButton('add');
+
+    // ---------- Photo: check, preview, remove ----------
+    const photoInput = document.getElementById('photoInput');
+    const photoError = document.getElementById('photoError');
+    const previewWrap = document.getElementById('photoPreviewWrap');
+    const previewImg = document.getElementById('photoPreview');
+
+    function clearPhoto() {
+      photoInput.value = '';
+      previewWrap.classList.add('hidden');
+      if (previewImg.src) URL.revokeObjectURL(previewImg.src);
+      previewImg.removeAttribute('src');
+    }
+
+    function showPhotoError(msg) {
+      photoError.textContent = msg;
+      photoError.classList.remove('hidden');
+    }
+
+    photoInput.addEventListener('change', () => {
+      photoError.classList.add('hidden');
+      const file = photoInput.files[0];
+      if (!file) { clearPhoto(); return; }
+
+      if (!/^image\/(jpeg|png|webp)$/.test(file.type)) {
+        clearPhoto();
+        showPhotoError('Only JPG, PNG or WEBP images are allowed.');
+        return;
+      }
+      if (file.size > 2 * 1024 * 1024) {
+        clearPhoto();
+        showPhotoError('Image must be smaller than 2 MB.');
+        return;
+      }
+      previewImg.src = URL.createObjectURL(file);
+      previewWrap.classList.remove('hidden');
     });
 
-    // On page load default to My Complaints
-    showSection('');
+    document.getElementById('photoRemove').addEventListener('click', () => {
+      clearPhoto();
+      photoError.classList.add('hidden');
+    });
+
+    // Stop double submits
+    document.getElementById('complaintFormEl').addEventListener('submit', () => {
+      const btn = document.getElementById('submitBtn');
+      btn.disabled = true;
+      btn.textContent = 'Submitting...';
+    });
   </script>
 
   <footer class="text-center text-gray-500 py-4">
     Developed by Harsh Kumar Singh | GL Bajaj Institute of Technology &amp; Management, Greater Noida
-</footer>
+  </footer>
   <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
 </body>
 </html>
