@@ -4,274 +4,250 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>GLBITM Hostel Complaint Portal</title>
-  <link href="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.css" rel="stylesheet" />
-  <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-    .star-rating { position: relative; display: inline-flex; flex-direction: row-reverse; gap: 2px; }
-    .star-rating input { position: absolute; opacity: 0; width: 1px; height: 1px; }
-    .star-rating label { font-size: 2.25rem; line-height: 1; color: #d1d5db; cursor: pointer; transition: color .15s, transform .15s; }
-    .star-rating label:hover { transform: scale(1.15); }
-    .star-rating input:checked ~ label,
-    .star-rating label:hover,
-    .star-rating label:hover ~ label { color: #2563eb; }
-    .star-rating input:focus-visible + label { outline: 2px solid #2563eb; border-radius: 4px; }
-  </style>
+  <title>My complaints | GLBITM Hostel Complaint Portal</title>
+  <link rel="stylesheet" href="/theme.css" />
 </head>
 
-<body class="bg-blue-50 min-h-screen flex flex-col items-center py-10">
-  <div>
-    <div class="absolute top-4 right-4">
-      <form action="/user/logout" method="POST" class="inline">
-        <button type="submit" class="text-red-500 font-bold py-2 px-4 ">
-          Logout
-        </button>
-      </form>
-    </div>
-  </div>
-  <img src="/college-logo.png" alt="Hostel Complaint Portal Logo" class="mb-6 w-40 h-40 object-contain" />
-  <h1 class="mb-5 text-center text-2xl text-blue-700 sm:text-3xl font-bold">
-    GLBITM Hostel Complaint Portal
-  </h1>
+<body class="theme">
 
-  <!-- Buttons -->
-  <div>
-    <!-- Buttons visible on sm and up -->
-    <div class="hidden sm:flex flex-row gap-4 w-full sm:w-auto px-4">
-      <button id="recentComplaintBtn"
-        class="tab-btn bg-white border border-blue-600 text-blue-600 px-6 py-3 rounded-lg shadow w-full sm:w-auto">Recent
-        Complaints</button>
-      <button id="myComplaintBtn"
-        class="tab-btn bg-blue-600 text-white border border-blue-600 px-6 py-3 rounded-lg shadow w-full sm:w-auto">My
-        Complaints</button>
-      <button id="addComplaintBtn"
-        class="tab-btn bg-white border border-blue-600 text-blue-600 px-6 py-3 rounded-lg shadow w-full sm:w-auto">Add
-        Complaint</button>
-    </div>
+  <%- include('partials/navbar', { active: 'mine' }) %>
 
-    <!-- Dropdown visible only on xs -->
-    <div class="sm:hidden px-4 mt-4">
-      <select id="complaintSelect"
-        class="w-full border border-blue-600 bg-blue-500 text-white rounded-lg px-6 py-5 pr-12 shadow">
-        <option value="recent">Recent Complaints</option>
-        <option value="my" selected>My Complaints</option>
-        <option value="add">Add Complaint</option>
-      </select>
-    </div>
-  </div>
+    <main class="page">
+      <div class="page-head">
+        <div>
+          <h1>My complaints</h1>
+          <p class="muted">Track, resolve, rate or reopen your complaints.</p>
+        </div>
+        <div class="toolbar">
+          <a class="btn btn-primary" href="/complaint/add">New complaint</a>
+        </div>
+      </div>
 
-  <!-- My Complaints List -->
-  <div id="myComplaints" class="mt-6 w-full max-w-4xl p-6 space-y-10">
-    <!-- Complaint cards will be inserted here -->
-  </div>
+      <div id="myComplaints" class="tickets"></div>
+    </main>
 
-  <%- include('partials/complaintHelpers') %>
+    <footer class="pagefoot">
+      <div class="wrap">
+        Developed by <strong>Harsh Kumar Singh</strong><br />
+        GL Bajaj Institute of Technology &amp; Management, Greater Noida
+      </div>
+    </footer>
 
-  <script>
-    // "<" is escaped so a complaint containing a closing script tag cannot break out of it
-    const user = <%- JSON.stringify(user || {}).replace(/</g, "\\u003c") %>;
-    const complaints = <%- JSON.stringify(complaints || []).replace(/</g, "\\u003c") %>;
+    <%- include('partials/complaintHelpers') %>
 
-    const myComplaintsDiv = document.getElementById("myComplaints");
+      <script>
+        // "<" is escaped so a complaint containing a closing script tag cannot break out of it
+        const user = <%- JSON.stringify(user || {}).replace(/</g, "\\u003c") %>;
+        const complaints = <%- JSON.stringify(complaints || []).replace(/</g, "\\u003c") %>;
 
-    // Search + filters, placed above the list
-    myComplaintsDiv.parentNode.insertBefore(
-      buildFilterBar("bg-blue-600 text-white", "newest"),
-      myComplaintsDiv
-    );
+        // ---------- Dark-theme overrides of the shared helper functions ----------
+        const svg = (d) => '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + d + '</svg>';
+        const ICON_USER = svg('<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>');
+        const ICON_ROOM = svg('<path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M10 21v-6h4v6"/>');
+        const ICON_DATE = svg('<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>');
+        const PRI = { Urgent: "p-urgent", High: "p-high", Medium: "p-medium", Low: "p-low" };
 
-    function renderMyComplaints() {
-      const f = getFilters();
-      const list = sortComplaints(complaints.filter(c => matchesFilters(c, f)), f.sort);
+        function getCategoryIcon(category) {
+          switch (category) {
+            case "water": return svg('<path d="M12 2C8 7 5 10 5 14a7 7 0 0 0 14 0c0-4-3-7-7-12z"/>');
+            case "electricity": return svg('<path d="M13 10V3L4 14h7v7l9-11h-7z"/>');
+            case "network": return svg('<path d="M5.05 12.55a8 8 0 0 1 13.9 0"/><path d="M8.46 15.16a4 4 0 0 1 7.07 0"/><path d="M12 18.5h.01"/>');
+            case "mess": return svg('<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/>');
+            case "washroom": return svg('<circle cx="12" cy="12" r="10"/><rect x="6" y="14" width="12" height="4" rx="2"/><path d="M9 14v-2M15 14v-2"/>');
+            default: return svg('<circle cx="12" cy="12" r="10"/>');
+          }
+        }
 
-      myComplaintsDiv.innerHTML = "";
-      setResultCount(list.length, complaints.length);
+        function priorityBadge(comp) {
+          return '<span class="pri">' + esc(priorityOf(comp)) + ' priority</span>';
+        }
 
-      if (list.length === 0) {
-        const none = document.createElement("p");
-        none.className = "text-red-500 text-center mt-6";
-        none.textContent = complaints.length === 0
-          ? "You have not added any complaints yet."
-          : "No complaints match your search or filters.";
-        myComplaintsDiv.appendChild(none);
-        return;
-      }
+        function statusPill(status) {
+          if (status === "resolved") return '<span class="badge badge-done">Resolved</span>';
+          if (status === "in progress") return '<span class="badge badge-progress">In progress</span>';
+          return '<span class="badge badge-open">Not resolved</span>';
+        }
 
-      list.forEach(comp => {
-        const u = comp.user || {};
-        const card = document.createElement("div");
-        card.className = "max-w-full sm:max-w-xl mx-auto p-6 sm:p-8 bg-white rounded-xl shadow-xl border border-gray-200";
+        function photoBlock(comp) {
+          const before = safeImg(comp.image);
+          const after = safeImg(comp.resolutionImage);
+          if (!before && !after) return "";
+          const one = (src, label) => `
+        <a href="${esc(src)}" target="_blank" rel="noopener">
+          <img src="${esc(src)}" alt="${label}" loading="lazy" />
+          ${label}
+        </a>`;
+          return `<div class="mc-photos">
+        ${before ? one(before, "Complaint photo") : ""}
+        ${after ? one(after, "After resolution") : ""}
+      </div>`;
+        }
 
-        const statusArea = comp.status === "resolved"
-          ? statusPill("resolved")
-          : `<div class="flex flex-wrap items-center gap-2 mt-2 sm:mt-0">
-               ${comp.status === "in progress" ? statusPill("in progress") : ""}
-               <form action="/complaint/resolve/${esc(comp._id)}" method="POST" onsubmit="return confirmResolve()">
-                 <button type="submit" class="bg-red-100 text-red-700 px-4 py-1 rounded-full font-bold shadow hover:bg-red-200">
-                   Mark as resolved
-                 </button>
-               </form>
-             </div>`;
+        function adminNoteBlock(comp) {
+          if (!comp.adminNote) return "";
+          return `<div class="mc-note"><strong>Admin note:</strong> ${esc(comp.adminNote)}</div>`;
+        }
 
-        card.innerHTML = `
-          <div class="flex flex-wrap justify-between items-center mb-4">
-            <div class="flex items-center space-x-2 bg-blue-100 text-blue-700 px-3 py-1 rounded-full font-semibold shadow">
-              <span class="inline-block">${getCategoryIcon(comp.category)}</span>
-              <span>${esc(comp.category)}</span>
-            </div>
-            ${statusArea}
+        function buildFilterBar(selectClass, defaultSort) {
+          const wrap = document.createElement("div");
+          wrap.className = "mc-filters";
+          wrap.innerHTML = `
+        <input id="searchBox" type="search" class="field search" placeholder="Search by title, description, name or room..." />
+        <div class="mc-filter-row">
+          <div><label for="categoryFilter" class="label">Category</label>
+            <select id="categoryFilter" class="field">
+              <option value="all">All</option>
+              <option value="water">Water</option>
+              <option value="electricity">Electricity</option>
+              <option value="network">Network</option>
+              <option value="mess">Mess</option>
+              <option value="washroom">Washroom</option>
+              <option value="general">General</option>
+            </select></div>
+          <div><label for="statusFilter" class="label">Status</label>
+            <select id="statusFilter" class="field">
+              <option value="all">All</option>
+              <option value="not resolved">Not resolved</option>
+              <option value="in progress">In progress</option>
+              <option value="resolved">Resolved</option>
+            </select></div>
+          <div><label for="priorityFilter" class="label">Priority</label>
+            <select id="priorityFilter" class="field">
+              <option value="all">All</option>
+              <option value="Urgent">Urgent</option>
+              <option value="High">High</option>
+              <option value="Medium">Medium</option>
+              <option value="Low">Low</option>
+            </select></div>
+          <div><label for="sortBy" class="label">Sort by</label>
+            <select id="sortBy" class="field">
+              <option value="newest">Newest first</option>
+              <option value="oldest">Oldest first</option>
+              <option value="priority">Highest priority</option>
+              <option value="affected">Most affected</option>
+            </select></div>
+        </div>
+        <p id="resultCount" class="mc-count"></p>`;
+          wrap.querySelector("#sortBy").value = defaultSort;
+          return wrap;
+        }
+
+        // ---------- Page ----------
+        const myComplaintsDiv = document.getElementById("myComplaints");
+
+        myComplaintsDiv.parentNode.insertBefore(buildFilterBar("", "newest"), myComplaintsDiv);
+
+        function renderMyComplaints() {
+          const f = getFilters();
+          const list = sortComplaints(complaints.filter(c => matchesFilters(c, f)), f.sort);
+
+          myComplaintsDiv.innerHTML = "";
+          setResultCount(list.length, complaints.length);
+
+          if (list.length === 0) {
+            const empty = document.createElement("div");
+            empty.className = "empty";
+            empty.innerHTML = complaints.length === 0
+              ? '<h3>No complaints yet</h3><p>You have not added any complaints yet.</p><a class="btn btn-primary" href="/complaint/add">Add a complaint</a>'
+              : '<h3>No matches</h3><p>No complaints match your search or filters.</p>';
+            myComplaintsDiv.appendChild(empty);
+            return;
+          }
+
+          list.forEach(comp => {
+            const u = comp.user || {};
+            const card = document.createElement("article");
+            card.className = "ticket mc-card " + (PRI[priorityOf(comp)] || "p-medium");
+
+            card.innerHTML = `
+          <div class="ticket-top">
+            <span class="badge badge-cat mc-cat">${getCategoryIcon(comp.category)}${esc(comp.category)}</span>
+            ${statusPill(comp.status)}
+            ${priorityBadge(comp)}
           </div>
-
-          <div class="flex justify-center mb-4">${priorityBadge(comp)}</div>
-
-          <h2 class="text-2xl sm:text-4xl font-extrabold text-gray-900 text-center mb-6 break-words">${esc(comp.title)}</h2>
-
-          <p class="text-gray-700 text-base sm:text-lg leading-relaxed mb-8 px-4 text-center max-w-full sm:max-w-xl mx-auto whitespace-pre-line break-words">${esc(comp.description)}</p>
-
+          <h2>${esc(comp.title)}</h2>
+          <p class="desc">${esc(comp.description)}</p>
           ${photoBlock(comp)}
           ${adminNoteBlock(comp)}
-
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 text-gray-800 text-sm sm:text-base px-4 sm:px-8">
-            <div class="flex items-center space-x-2">
-              <svg class="w-5 h-5 sm:w-6 sm:h-6 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M5.121 17.804A8.959 8.959 0 0112 15a8.959 8.959 0 016.879 2.804M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
-              <strong>${esc(u.username)}</strong>
-            </div>
-            <div class="flex items-center space-x-2">
-              <svg class="w-5 h-5 sm:w-6 sm:h-6 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 14h10M9 18h6" />
-              </svg>
-              <strong>${esc(comp.hostel_no)}</strong>
-            </div>
-            <div class="flex items-center space-x-2">
-              <svg class="w-5 h-5 sm:w-6 sm:h-6 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M4 21h16V7H4v14zM9 21V12h6v9" />
-                <circle cx="12" cy="16" r="1" />
-              </svg>
-              <strong>Room: ${esc(u.room_no)}</strong>
-            </div>
-            <div class="flex items-center space-x-2 whitespace-nowrap">
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 sm:w-6 sm:h-6 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="4" y="7" width="16" height="14" />
-                <line x1="16" y1="3" x2="16" y2="7" />
-                <line x1="8" y1="3" x2="8" y2="7" />
-                <line x1="4" y1="11" x2="20" y2="11" />
-              </svg>
-              <strong>${formatDate(comp.createdAt)}</strong>
-            </div>
+          <div class="meta">
+            <span>${ICON_USER}${esc(u.username)}</span>
+            <span>${ICON_ROOM}${esc(comp.hostel_no)} &middot; Room ${esc(u.room_no)}</span>
+            <span>${ICON_DATE}${formatDate(comp.createdAt)}</span>
           </div>
         `;
 
-        // feedback (rating) + reopen section, shown below the card details
-        card.insertAdjacentHTML("beforeend", feedbackArea(comp));
+            if (comp.status !== "resolved") {
+              const foot = document.createElement("div");
+              foot.className = "ticket-foot";
+              foot.innerHTML = `
+            <span>Fixed already?</span>
+            <form action="/complaint/resolve/${esc(comp._id)}" method="POST" onsubmit="return confirmResolve()">
+              <button type="submit" class="btn btn-sm btn-ghost">Mark as resolved</button>
+            </form>`;
+              card.appendChild(foot);
+            }
 
-        myComplaintsDiv.appendChild(card);
-      });
-    }
+            card.insertAdjacentHTML("beforeend", feedbackArea(comp));
+            myComplaintsDiv.appendChild(card);
+          });
+        }
 
         // Rating + reopen UI for a complaint card
-    function feedbackArea(comp) {
-      const id = esc(comp._id);
+        function feedbackArea(comp) {
+          const id = esc(comp._id);
 
-      // not resolved: only show a "Reopened" badge if it was ever reopened
-      if (comp.status !== "resolved") {
-        return Number(comp.reopenCount) > 0
-          ? `<div class="mt-4 pt-4 border-t border-gray-200 text-sm">
-               <span class="bg-orange-100 text-orange-700 px-3 py-1 rounded-full font-semibold">Reopened ${Number(comp.reopenCount)}x</span>
-               ${comp.reopenReason ? `<p class="text-gray-600 mt-2">Reason: ${esc(comp.reopenReason)}</p>` : ""}
+          // not resolved: only show a "Reopened" badge if it was ever reopened
+          if (comp.status !== "resolved") {
+            return Number(comp.reopenCount) > 0
+              ? `<div class="mc-extra">
+               <div>
+                 <span class="mc-reopen">Reopened ${Number(comp.reopenCount)}x</span>
+                 ${comp.reopenReason ? `<p class="mc-reason">Reason: ${esc(comp.reopenReason)}</p>` : ""}
+               </div>
              </div>`
-          : "";
-      }
+              : "";
+          }
 
-      // resolved: show the filled stars, or the star-rating form if not rated yet
-      const stars = Number(comp.rating) || 0;
-      const rated = stars
-        ? `<div>
-             <p class="font-semibold text-gray-700">Your rating</p>
-             <div class="text-3xl leading-none">
-               <span class="text-yellow-400">${"★".repeat(stars)}</span><span class="text-gray-300">${"★".repeat(5 - stars)}</span>
-               <span class="text-sm text-gray-600 ml-2 align-middle">${stars}/5</span>
+          // resolved: show the filled stars, or the star-rating form if not rated yet
+          const stars = Number(comp.rating) || 0;
+          const rated = stars
+            ? `<div>
+             <p class="mc-title">Your rating</p>
+             <div class="mc-stars-done">
+               <span class="on">${"★".repeat(stars)}</span><span class="off">${"★".repeat(5 - stars)}</span><small>${stars}/5</small>
              </div>
-             ${comp.feedback ? `<p class="text-gray-600 mt-1">${esc(comp.feedback)}</p>` : ""}
+             ${comp.feedback ? `<p class="mc-reason">${esc(comp.feedback)}</p>` : ""}
            </div>`
-        : `<form action="/complaint/rate/${id}" method="POST" class="space-y-2">
-             <p class="font-semibold text-gray-700">Rate how this was handled</p>
+            : `<form action="/complaint/rate/${id}" method="POST">
+             <p class="mc-title">Rate how this was handled</p>
              <div class="star-rating">
                ${[5, 4, 3, 2, 1].map(n => `<input type="radio" id="star${n}-${id}" name="rating" value="${n}" required><label for="star${n}-${id}" title="${n} star${n > 1 ? "s" : ""}">★</label>`).join("")}
              </div>
-             <input type="text" name="feedback" maxlength="300" placeholder="Feedback (optional)" class="w-full border rounded px-3 py-2">
-             <button type="submit" class="bg-green-100 text-green-700 px-4 py-1 rounded-full font-bold hover:bg-green-200">Submit rating</button>
+             <input type="text" name="feedback" maxlength="300" placeholder="Feedback (optional)" class="field">
+             <button type="submit" class="btn btn-sm btn-primary">Submit rating</button>
            </form>`;
 
-      return `<div class="mt-4 pt-4 border-t border-gray-200 text-sm space-y-4">
+          return `<div class="mc-extra">
         ${rated}
-        <form action="/complaint/reopen/${id}" method="POST" onsubmit="return confirm('Reopen this complaint?')" class="space-y-2">
-          <input type="text" name="reason" required maxlength="300" placeholder="Problem still exists? Tell us what is wrong" class="w-full border rounded px-3 py-2">
-          <button type="submit" class="bg-orange-100 text-orange-700 px-4 py-1 rounded-full font-bold hover:bg-orange-200">Problem still exists</button>
+        <form action="/complaint/reopen/${id}" method="POST" onsubmit="return confirm('Reopen this complaint?')">
+          <input type="text" name="reason" required maxlength="300" placeholder="Problem still exists? Tell us what is wrong" class="field">
+          <button type="submit" class="btn btn-sm btn-ghost">Problem still exists</button>
         </form>
       </div>`;
-    }
+        }
 
-    function confirmResolve() {
-      return confirm("Once marked as resolved, you cannot change it back. Continue?");
-    }
+        function confirmResolve() {
+          return confirm("Once marked as resolved, you cannot change it back. Continue?");
+        }
 
-    watchFilters(renderMyComplaints);
-    renderMyComplaints();
-
-    // ---------- Tabs ----------
-    const recentBtn = document.getElementById('recentComplaintBtn');
-    const myBtn = document.getElementById('myComplaintBtn');
-    const addBtn = document.getElementById('addComplaintBtn');
-    const complaintSelect = document.getElementById('complaintSelect');
-
-    function setActiveButton(activeSection) {
-      const map = { recent: recentBtn, my: myBtn, add: addBtn };
-
-      [recentBtn, myBtn, addBtn].forEach(btn => {
-        btn.classList.remove('bg-blue-600', 'text-white');
-        btn.classList.add('bg-white', 'text-blue-600');
-      });
-
-      if (map[activeSection]) {
-        map[activeSection].classList.add('bg-blue-600', 'text-white');
-        map[activeSection].classList.remove('bg-white', 'text-blue-600');
-      }
-    }
-
-    function showSection(section) {
-      if (section === "recent") {
-        window.location.href = "/user/home";
-        return;
-      }
-      if (section === "add") {
-        window.location.href = "/complaint/add";
-        return;
-      }
-      if (section === "my") {
-        myComplaintsDiv.classList.remove("hidden");
-      }
-      setActiveButton(section);
-    }
-
-    recentBtn.addEventListener('click', () => showSection('recent'));
-    myBtn.addEventListener('click', () => showSection('my'));
-    addBtn.addEventListener('click', () => showSection('add'));
-    complaintSelect.addEventListener('change', (e) => showSection(e.target.value));
-
-    // On page load default to My Complaints
-    showSection('my');
-  </script>
-  <% if (typeof message !== "undefined" && message) { %>
-  <script>
-    alert(<%- JSON.stringify(message).replace(/</g, "\\u003c") %>);
-  </script>
-  <% } %>
-  <footer class="text-center text-gray-500 py-4">
-    Developed by Harsh Kumar Singh | GL Bajaj Institute of Technology &amp; Management, Greater Noida
-  </footer>
-  <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
+        watchFilters(renderMyComplaints);
+        renderMyComplaints();
+      </script>
+      <% if (typeof message !=="undefined" && message) { %>
+        <script>
+          alert(<%- JSON.stringify(message).replace(/</g, "\\u003c") %>);
+        </script>
+        <% } %>
 </body>
 
 </html>

@@ -986,3 +986,186 @@ a.btn.btn-ghost:hover {
     padding: 24px 16px;
   }
 }
+
+/* ---------- My complaints page ---------- */
+.mc-filters {
+  margin-bottom: 24px;
+}
+
+.mc-filters .search {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.mc-filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: flex-end;
+}
+
+.mc-filter-row>div {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 160px;
+}
+
+.mc-filter-row .label {
+  margin: 0;
+}
+
+.mc-count {
+  color: #9aa4ba;
+  font-size: 14px;
+  margin: 16px 0 0;
+}
+
+.mc-card .desc {
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+.mc-cat {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.mc-photos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin: 16px 0;
+}
+
+.mc-photos a {
+  text-decoration: none;
+  color: #9aa4ba;
+  font-size: 12px;
+  text-align: center;
+}
+
+.mc-photos img {
+  display: block;
+  height: 144px;
+  width: auto;
+  max-width: 100%;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 1px solid #263049;
+  margin-bottom: 8px;
+}
+
+.mc-note {
+  margin: 16px 0;
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid #263049;
+  border-left: 3px solid #5aa9ff;
+  background: #1c2438;
+  color: #e8ebf2;
+  font-size: 14px;
+}
+
+.mc-note strong {
+  color: #5aa9ff;
+}
+
+.mc-extra {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #263049;
+  display: grid;
+  gap: 16px;
+  font-size: 14px;
+}
+
+.mc-extra form {
+  display: grid;
+  gap: 8px;
+  justify-items: start;
+}
+
+.mc-extra .field {
+  width: 100%;
+}
+
+.mc-title {
+  font-weight: 700;
+  color: #e8ebf2;
+  margin: 0;
+}
+
+.mc-reopen {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 13px;
+  color: #f5b942;
+  border: 1px solid #f5b942;
+}
+
+.mc-reason {
+  color: #9aa4ba;
+  margin: 8px 0 0;
+}
+
+.mc-stars-done {
+  font-size: 28px;
+  line-height: 1;
+  letter-spacing: 2px;
+}
+
+.mc-stars-done .on {
+  color: #f5b942;
+}
+
+.mc-stars-done .off {
+  color: #44516f;
+}
+
+.mc-stars-done small {
+  font-size: 14px;
+  color: #9aa4ba;
+  letter-spacing: 0;
+  margin-left: 8px;
+}
+
+.star-rating {
+  position: relative;
+  display: inline-flex;
+  flex-direction: row-reverse;
+  gap: 2px;
+}
+
+.star-rating input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+
+.star-rating label {
+  font-size: 36px;
+  line-height: 1;
+  color: #44516f;
+  cursor: pointer;
+  transition: color .15s, transform .15s;
+}
+
+.star-rating label:hover {
+  transform: scale(1.15);
+}
+
+.star-rating input:checked~label,
+.star-rating label:hover,
+.star-rating label:hover~label {
+  color: #f5b942;
+}
+
+.star-rating input:focus-visible+label {
+  outline: 2px solid #f26b2a;
+  border-radius: 4px;
+}
