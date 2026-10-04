@@ -1,183 +1,140 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>GLBITM Hostel Complaint Portal</title>
-  <link href="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.css" rel="stylesheet" />
-  <script src="https://cdn.tailwindcss.com"></script>
+  <title>Add complaint | GLBITM Hostel Complaint Portal</title>
+  <link rel="stylesheet" href="/theme.css" />
 </head>
-<body class="bg-blue-50 min-h-screen flex flex-col items-center py-10">
-  <div>
-    <div class="absolute top-4 right-4">
-      <form action="/user/logout" method="POST" class="inline">
-        <button type="submit" class="text-red-500 font-bold py-2 px-4 ">
-          Logout
-        </button>
-      </form>
-    </div>
-  </div>
-  <img src="/college-logo.png" alt="Hostel Complaint Portal Logo" class="mb-6 w-40 h-40 object-contain" />
-  <h1 class="mb-5 text-center text-2xl text-blue-700 sm:text-3xl font-bold">
-    GLBITM Hostel Complaint Portal
-  </h1>
 
-  <!-- Buttons -->
-  <div>
-    <!-- Buttons visible on sm and up -->
-    <div class="hidden sm:flex flex-row gap-4 w-full sm:w-auto px-4">
-      <button id="recentComplaintBtn" class="tab-btn bg-white border border-blue-600 text-blue-600 px-6 py-3 rounded-lg shadow w-full sm:w-auto">Recent Complaints</button>
-      <button id="myComplaintBtn" class="tab-btn bg-white text-blue-600 border border-blue-600 px-6 py-3 rounded-lg shadow w-full sm:w-auto">My Complaints</button>
-      <button id="addComplaintBtn" class="tab-btn bg-blue-600 border border-blue-600 text-white px-6 py-3 rounded-lg shadow w-full sm:w-auto">Add Complaint</button>
-    </div>
+<body class="theme">
 
-    <!-- Dropdown visible only on xs -->
-    <div class="sm:hidden px-4 mt-4">
-      <select id="complaintSelect" class="w-full border border-blue-600 bg-blue-500 text-white rounded-lg px-6 py-5 pr-12 shadow">
-        <option value="recent">Recent Complaints</option>
-        <option value="my">My Complaints</option>
-        <option value="add" selected>Add Complaint</option>
-      </select>
-    </div>
-  </div>
+  <%- include('partials/navbar', { active: 'add' }) %>
 
-  <!-- Complaint Form -->
-  <div id="complaintForm" class="mt-6 w-full max-w-lg bg-white p-6 rounded-lg shadow">
-    <h2 class="text-xl font-bold text-blue-600 mb-4">Add Your Complaint</h2>
-
-    <% if (typeof error !== "undefined" && error) { %>
-      <div class="mb-4 rounded border border-red-300 bg-red-50 text-red-700 px-4 py-3 text-sm">
-        <%= error %>
-      </div>
-    <% } %>
-
-    <form id="complaintFormEl" action="/complaint/add" method="POST" enctype="multipart/form-data">
-      <label class="block mb-2 font-medium">Category:</label>
-      <select name="category" class="w-full border border-gray-300 rounded p-2 mb-4" required>
-        <option value="">Select a category</option>
-        <option value="water">Water</option>
-        <option value="network">Network</option>
-        <option value="mess">Mess</option>
-        <option value="electricity">Electricity</option>
-        <option value="washroom">Washroom</option>
-        <option value="general">General</option>
-      </select>
-
-      <label class="block mb-2 font-medium">Title:</label>
-      <input name="title" type="text" class="w-full border border-gray-300 rounded p-2 mb-4" required />
-
-      <label class="block mb-2 font-medium">Description:</label>
-      <textarea name="description" class="w-full border border-gray-300 rounded p-2 mb-4" rows="4" required></textarea>
-
-      <label class="block mb-2 font-medium">Photo <span class="text-gray-400 font-normal">(optional)</span>:</label>
-      <input id="photoInput" name="image" type="file" accept="image/jpeg,image/png,image/webp"
-        class="w-full border border-gray-300 rounded p-2 mb-1 text-sm bg-gray-50" />
-      <p class="text-xs text-gray-500 mb-2">JPG, PNG or WEBP, up to 2 MB.</p>
-      <p id="photoError" class="text-sm text-red-600 mb-2 hidden"></p>
-
-      <div id="photoPreviewWrap" class="hidden mb-4">
-        <img id="photoPreview" alt="Selected photo preview" class="max-h-48 w-auto rounded-lg border border-gray-200" />
-        <button type="button" id="photoRemove" class="block mt-2 text-sm text-red-600 hover:underline">Remove photo</button>
+    <main class="page">
+      <div class="page-head">
+        <div>
+          <h1>Add complaint</h1>
+          <p class="muted">Describe the problem and the warden will be notified.</p>
+        </div>
       </div>
 
-      <p class="text-xs text-gray-500 mb-4">Priority is set automatically from your title and description.</p>
+      <div class="form-wrap">
+        <div class="form-card">
 
-      <button id="submitBtn" type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Submit</button>
-    </form>
-  </div>
+          <% if (typeof error !=="undefined" && error) { %>
+            <div class="alert-error">
+              <%= error %>
+            </div>
+            <% } %>
 
-  <script>
-    // Button elements
-    const recentBtn = document.getElementById('recentComplaintBtn');
-    const myBtn = document.getElementById('myComplaintBtn');
-    const addBtn = document.getElementById('addComplaintBtn');
-    const complaintSelect = document.getElementById('complaintSelect');
+              <form id="complaintFormEl" action="/complaint/add" method="POST" enctype="multipart/form-data">
 
-    function setActiveButton(activeSection) {
-      const map = { recent: recentBtn, my: myBtn, add: addBtn };
+                <div class="row">
+                  <label class="label" for="category">Category</label>
+                  <select id="category" name="category" class="field" required>
+                    <option value="">Select a category</option>
+                    <option value="water">Water</option>
+                    <option value="network">Network</option>
+                    <option value="mess">Mess</option>
+                    <option value="electricity">Electricity</option>
+                    <option value="washroom">Washroom</option>
+                    <option value="general">General</option>
+                  </select>
+                </div>
 
-      [recentBtn, myBtn, addBtn].forEach(btn => {
-        btn.classList.remove("bg-blue-600", "text-white");
-        btn.classList.add("bg-white", "text-blue-600");
+                <div class="row">
+                  <label class="label" for="title">Title</label>
+                  <input id="title" name="title" type="text" class="field"
+                    placeholder="e.g. No water supply on 1st floor" required />
+                </div>
+
+                <div class="row">
+                  <label class="label" for="description">Description</label>
+                  <textarea id="description" name="description" class="field" rows="4"
+                    placeholder="What is wrong, since when, and where?" required></textarea>
+                </div>
+
+                <div class="row">
+                  <label class="label" for="photoInput">Photo <span class="opt">(optional)</span></label>
+                  <input id="photoInput" name="image" type="file" accept="image/jpeg,image/png,image/webp"
+                    class="field" />
+                  <p class="hint">JPG, PNG or WEBP, up to 2 MB.</p>
+                  <p id="photoError" class="field-error hidden"></p>
+
+                  <div id="photoPreviewWrap" class="photo-preview hidden">
+                    <img id="photoPreview" alt="Selected photo preview" />
+                    <button type="button" id="photoRemove" class="link-danger">Remove photo</button>
+                  </div>
+                </div>
+
+                <p class="hint" style="margin:0 0 24px">Priority is set automatically from your title and description.
+                </p>
+
+                <button id="submitBtn" type="submit" class="btn btn-primary btn-lg btn-block">Submit complaint</button>
+              </form>
+        </div>
+      </div>
+    </main>
+
+    <footer class="pagefoot">
+      <div class="wrap">
+        Developed by <strong>Harsh Kumar Singh</strong><br />
+        GL Bajaj Institute of Technology &amp; Management, Greater Noida
+      </div>
+    </footer>
+
+    <script>
+      // ---------- Photo: check, preview, remove ----------
+      const photoInput = document.getElementById('photoInput');
+      const photoError = document.getElementById('photoError');
+      const previewWrap = document.getElementById('photoPreviewWrap');
+      const previewImg = document.getElementById('photoPreview');
+
+      function clearPhoto() {
+        photoInput.value = '';
+        previewWrap.classList.add('hidden');
+        if (previewImg.src) URL.revokeObjectURL(previewImg.src);
+        previewImg.removeAttribute('src');
+      }
+
+      function showPhotoError(msg) {
+        photoError.textContent = msg;
+        photoError.classList.remove('hidden');
+      }
+
+      photoInput.addEventListener('change', () => {
+        photoError.classList.add('hidden');
+        const file = photoInput.files[0];
+        if (!file) { clearPhoto(); return; }
+
+        if (!/^image\/(jpeg|png|webp)$/.test(file.type)) {
+          clearPhoto();
+          showPhotoError('Only JPG, PNG or WEBP images are allowed.');
+          return;
+        }
+        if (file.size > 2 * 1024 * 1024) {
+          clearPhoto();
+          showPhotoError('Image must be smaller than 2 MB.');
+          return;
+        }
+        previewImg.src = URL.createObjectURL(file);
+        previewWrap.classList.remove('hidden');
       });
 
-      if (map[activeSection]) {
-        map[activeSection].classList.add("bg-blue-600", "text-white");
-        map[activeSection].classList.remove("bg-white", "text-blue-600");
-      }
-    }
-
-    function showSection(section) {
-      if (section === 'recent') {
-        window.location.href = '/user/home';
-      } else if (section === 'my') {
-        window.location.href = '/complaint/myComplaints';
-      } else if (section === 'add') {
-        window.location.href = '/complaint/add';
-      }
-    }
-
-    recentBtn.addEventListener('click', () => showSection('recent'));
-    myBtn.addEventListener('click', () => showSection('my'));
-    addBtn.addEventListener('click', () => showSection('add'));
-    complaintSelect.addEventListener('change', (e) => showSection(e.target.value));
-
-    // This page is "Add Complaint", so highlight that tab
-    setActiveButton('add');
-
-    // ---------- Photo: check, preview, remove ----------
-    const photoInput = document.getElementById('photoInput');
-    const photoError = document.getElementById('photoError');
-    const previewWrap = document.getElementById('photoPreviewWrap');
-    const previewImg = document.getElementById('photoPreview');
-
-    function clearPhoto() {
-      photoInput.value = '';
-      previewWrap.classList.add('hidden');
-      if (previewImg.src) URL.revokeObjectURL(previewImg.src);
-      previewImg.removeAttribute('src');
-    }
-
-    function showPhotoError(msg) {
-      photoError.textContent = msg;
-      photoError.classList.remove('hidden');
-    }
-
-    photoInput.addEventListener('change', () => {
-      photoError.classList.add('hidden');
-      const file = photoInput.files[0];
-      if (!file) { clearPhoto(); return; }
-
-      if (!/^image\/(jpeg|png|webp)$/.test(file.type)) {
+      document.getElementById('photoRemove').addEventListener('click', () => {
         clearPhoto();
-        showPhotoError('Only JPG, PNG or WEBP images are allowed.');
-        return;
-      }
-      if (file.size > 2 * 1024 * 1024) {
-        clearPhoto();
-        showPhotoError('Image must be smaller than 2 MB.');
-        return;
-      }
-      previewImg.src = URL.createObjectURL(file);
-      previewWrap.classList.remove('hidden');
-    });
+        photoError.classList.add('hidden');
+      });
 
-    document.getElementById('photoRemove').addEventListener('click', () => {
-      clearPhoto();
-      photoError.classList.add('hidden');
-    });
-
-    // Stop double submits
-    document.getElementById('complaintFormEl').addEventListener('submit', () => {
-      const btn = document.getElementById('submitBtn');
-      btn.disabled = true;
-      btn.textContent = 'Submitting...';
-    });
-  </script>
-
-  <footer class="text-center text-gray-500 py-4">
-    Developed by Harsh Kumar Singh | GL Bajaj Institute of Technology &amp; Management, Greater Noida
-  </footer>
-  <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
+      // Stop double submits
+      document.getElementById('complaintFormEl').addEventListener('submit', () => {
+        const btn = document.getElementById('submitBtn');
+        btn.disabled = true;
+        btn.textContent = 'Submitting...';
+      });
+    </script>
 </body>
+
 </html>

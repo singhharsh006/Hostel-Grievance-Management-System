@@ -10,7 +10,7 @@ const router = express.Router();
 router.post("/add", upload.single("image"), async (req, res) => {
   // image problems (too big / wrong type) -> show the form again with a message
   if (req.uploadError) {
-    return res.status(400).render("addComplaint", { error: req.uploadError });
+    return res.status(400).render("addComplaint", { error: req.uploadError, user: req.user });
   }
 
   const complain = {
@@ -31,7 +31,7 @@ router.post("/add", upload.single("image"), async (req, res) => {
 });
 
 router.get("/add", (req, res) => {
-  res.render("addComplaint", { error: null });
+  res.render("addComplaint", { error: null, user: req.user });
 });
 
 router.get("/myComplaints", async (req, res) => {
