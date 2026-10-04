@@ -2,296 +2,174 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>GLBITM Hostel Complaint Portal</title>
-    <link href="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.css" rel="stylesheet" />
-    <script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Recent complaints | GLBITM Hostel Complaint Portal</title>
+  <link rel="stylesheet" href="/theme.css" />
 </head>
 
-<body class="bg-blue-50 min-h-screen flex flex-col items-center py-10">
-    <div>
-        <div class="absolute top-4 right-4">
-            <form action="/user/logout" method="POST" class="inline">
-                <button type="submit" class="text-red-500 font-bold py-2 px-4 ">
-                    Logout
-                </button>
-            </form>
-        </div>
-    </div>
-    <img src="/college-logo.png" alt="Hostel Complaint Portal Logo" class="mb-6 w-40 h-40 object-contain" />
-    <h1 class="mb-5 text-center text-2xl text-blue-700 sm:text-3xl font-bold">
-        GLBITM Hostel Complaint Portal
-    </h1>
+<body class="theme">
 
-    <!-- Buttons -->
-    <div>
-        <!-- Buttons visible on sm and up -->
-        <div class="hidden sm:flex flex-row gap-4 w-full sm:w-auto px-4">
-            <button id="recentComplaintBtn"
-                class="tab-btn bg-blue-600 text-white border border-blue-600 px-6 py-3 rounded-lg shadow w-full sm:w-auto">Recent
-                Complaints</button>
-            <button id="myComplaintBtn"
-                class="tab-btn bg-white border border-blue-600 text-blue-600 px-6 py-3 rounded-lg shadow w-full sm:w-auto">My
-                Complaints</button>
-            <script>
-                document.getElementById('myComplaintBtn').addEventListener('click', () => {
-                    window.location.href = '/complaint/myComplaints';
-                });
-            </script>
-            <button id="addComplaintBtn"
-                class="tab-btn bg-white border border-blue-600 text-blue-600 px-6 py-3 rounded-lg shadow w-full sm:w-auto">Add
-                Complaint</button>
-            <script>
-                document.getElementById('addComplaintBtn').addEventListener('click', () => {
-                    window.location.href = '/complaint/add';
-                });
-            </script>
-        </div>
+  <%- include('partials/navbar', { active: 'home' }) %>
 
-
-
-        <!-- Dropdown visible only on xs -->
-        <div class="sm:hidden px-4 mt-4">
-            <select id="complaintSelect"
-                class="w-full border border-blue-600 bg-blue-500 text-white rounded-lg px-6 py-5 pr-12 shadow">
-                <option value="recent" selected>Recent Complaints</option>
-                <option value="my">My Complaints</option>
-                <option value="add">Add Complaint</option>
-            </select>
-        </div>
+  <main class="page">
+    <div class="page-head">
+      <div>
+        <h1>Recent complaints</h1>
+        <p class="muted" id="subline"></p>
+      </div>
+      <div class="toolbar">
+        <label class="label" for="categorySort" style="margin:0">Category</label>
+        <select id="categorySort" class="field">
+          <option value="all">All</option>
+          <option value="water">Water</option>
+          <option value="electricity">Electricity</option>
+          <option value="network">Network</option>
+          <option value="mess">Mess</option>
+          <option value="washroom">Washroom</option>
+          <option value="general">General</option>
+        </select>
+        <a class="btn btn-primary" href="/complaint/add">New complaint</a>
+      </div>
     </div>
 
+    <div id="recentComplaints" class="tickets"></div>
+  </main>
 
-
-    <!-- Recent Complaints List -->
-    <div id="recentComplaints" class="mt-6 w-full max-w-4xl p-6 space-y-10">
-        <!-- Cards will be inserted here -->
+  <footer class="pagefoot">
+    <div class="wrap">
+      Developed by <strong>Harsh Kumar Singh</strong><br />
+      GL Bajaj Institute of Technology &amp; Management, Greater Noida
     </div>
+  </footer>
 
-    <!-- My Complaints -->
-    <div id="myComplaints" class="hidden mt-6 w-full max-w-4xl bg-white p-6 rounded-lg shadow">
-        <p class="text-gray-500">You have not made any complaints yet.</p>
-    </div>
+  <script>
+    const user = <%- JSON.stringify(user || {}).replace(/</g, "\\u003c") %>;
+    const complaints = <%- JSON.stringify(complaints || []).replace(/</g, "\\u003c") %>;
+    const esc = s => String(s ?? "").replace(/[&<>"']/g, ch => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch]));
+    const recentComplaints = document.getElementById("recentComplaints");
 
-    <script>
+    const PRI = { urgent: "p-urgent", high: "p-high", medium: "p-medium", low: "p-low" };
+    const svg = (d) => '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + d + '</svg>';
+    const ICON_USER = svg('<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>');
+    const ICON_ROOM = svg('<path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M10 21v-6h4v6"/>');
+    const ICON_DATE = svg('<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>');
+    const THUMB = 'M7 10v12M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z';
 
-        // Sample data for user and complaints
+    function renderComplaints(filterCategory = "all") {
+      recentComplaints.innerHTML = "";
 
+      const list = complaints.filter(
+        c => filterCategory === "all" || String(c.category).toLowerCase() === filterCategory.toLowerCase()
+      );
 
+      document.getElementById("subline").textContent =
+        list.length + " open complaint" + (list.length === 1 ? "" : "s") + (user.hostel_no ? " in " + user.hostel_no : "");
 
-        const user = <%- JSON.stringify(user || {}).replace(/</g, "\\u003c") %>;
-        const complaints = <%- JSON.stringify(complaints || []).replace(/</g, "\\u003c") %>;
-        const esc = s => String(s ?? "").replace(/[&<>"']/g, ch => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch]));
-        const recentComplaints = document.getElementById("recentComplaints");
+      if (list.length === 0) {
+        const empty = document.createElement("div");
+        empty.className = "empty";
+        const check = '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
 
-        function getCategoryIcon(category) {
-            switch (category) {
-                case 'water':
-                    return `<svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" >
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 2C8 7 5 10 5 14a7 7 0 0014 0c0-4-3-7-7-12z" />
-                </svg>`;
-                case 'electricity':
-                    return `<svg class="w-6 h-6 text-yellow-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" >
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>`;
-                case 'network':
-                    return `<svg class="w-6 h-6 text-green-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" 
-                    stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M5.05 12.55a8 8 0 0 1 13.9 0" />
-                    <path d="M8.46 15.16a4 4 0 0 1 7.07 0" />
-                    <path d="M12 18.5h.01" />
-                </svg>`;
-                case 'mess':
-                    return `<svg class="w-6 h-6 text-orange-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="8" />
-                <circle cx="12" cy="12" r="4" />
-                <path d="M9 12c1-2 5-2 4 1" stroke-linejoin="round" />
-                <path d="M10 14c0 1 3 1 3 0" stroke-linejoin="round" />
-                </svg>`;
-                case 'washroom':
-                    return `<svg class="w-6 h-6 text-purple-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="10" />
-                <rect x="6" y="14" width="12" height="4" rx="2" ry="2" /> <!-- Bathtub base -->
-                <line x1="6" y1="14" x2="18" y2="14" /> <!-- Bathtub rim -->
-                <line x1="9" y1="14" x2="9" y2="12" /> <!-- Bathtub side -->
-                <line x1="15" y1="14" x2="15" y2="12" /> <!-- Bathtub side -->
-                </svg>`;
-
-                case 'general':
-                    return `<svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" >
-                    <circle cx="12" cy="12" r="10" />
-                </svg>`;
-            }
+        if (complaints.length === 0) {
+          // no open complaints in the hostel at all
+          empty.innerHTML = '<div class="empty-icon">' + check + '</div>'
+            + '<h3>No recent complaints</h3>'
+            + '<p>There are no open complaints in ' + esc(user.hostel_no || "your hostel") + ' right now. If something needs attention, you can raise a new complaint.</p>'
+            + '<a class="btn btn-primary" href="/complaint/add">Add a complaint</a>';
+        } else {
+          // complaints exist, but none in the selected category
+          empty.innerHTML = '<h3>No complaints in this category</h3>'
+            + '<p>There ' + (complaints.length === 1 ? 'is 1 open complaint' : 'are ' + complaints.length + ' open complaints')
+            + ' in other categories. Choose "All" to see them.</p>';
         }
+        recentComplaints.appendChild(empty);
+        return;
+      }
 
-        // 1️⃣ Create Sort Dropdown above complaints list
-        const sortContainer = document.createElement("div");
-        sortContainer.className = "flex justify-center items-center gap-4 mb-6";
+      list.forEach(comp => {
+        const owner = comp.user || {};
+        const pri = String(comp.priority || "Medium");
+        const priClass = PRI[pri.toLowerCase()] || "p-medium";
+        const inProgress = comp.status === "in progress";
 
-        sortContainer.innerHTML = `
-                    <label for="categorySort" class="text-lg mt-10 font-semibold text-gray-700">Select Category:</label>
-                    <select id="categorySort" class="border mt-10 text-white bg-blue-600 border-gray-300 rounded-lg px-4 py-2  shadow focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="all">All</option>
-                        <option value="water">Water</option>
-                        <option value="electricity">Electricity</option>
-                        <option value="network">Network</option>
-                        <option value="mess">Mess</option>
-                        <option value="washroom">Washroom</option>
-                        <option value="general">General</option>
-                    </select>
-                `;
-        recentComplaints.parentNode.insertBefore(sortContainer, recentComplaints);
-
-        // 2️⃣ Function to render complaints based on selected category
-
-        function renderComplaints(filterCategory = "all") {
-            recentComplaints.innerHTML = ""; // clear previous cards
-
-            // Filter complaints first
-            const filteredComplaints = complaints.filter(
-                comp => filterCategory === "all" || comp.category.toLowerCase() === filterCategory.toLowerCase()
-            );
-
-            // If none found, show message and return early
-            if (filteredComplaints.length === 0) {
-                console.log("No complaints found for this category.");
-                const noComplaints = document.createElement("p");
-                noComplaints.className = "text-red-500 text-center mt-6";
-                noComplaints.textContent = "No complaints found for this category.";
-                recentComplaints.appendChild(noComplaints);
-                return;
-            }
-
-            // Otherwise, render each complaint
-            filteredComplaints.forEach(comp => {
-                const category = comp.category;
-                const categoryIcon = getCategoryIcon(category);
-
-                const card = document.createElement("div");
-                card.className = "max-w-full sm:max-w-xl mx-auto p-6 sm:p-8 bg-white rounded-xl shadow-xl border border-gray-200 relative";
-
-                card.innerHTML = `
-            <div class="flex flex-wrap justify-between items-center mb-4">
-                <div class="flex items-center space-x-2 bg-blue-100 text-blue-700 px-3 py-1 rounded-full font-semibold shadow">
-                    <span class="inline-block">${categoryIcon}</span>
-                    <span>${category}</span>
-                </div>
-                <div class="bg-red-100 text-red-700 px-4 py-1 rounded-full font-bold shadow mt-2 sm:mt-0">
-                    Pending
-                </div>
-            </div>
-            <h2 class="text-2xl sm:text-4xl font-extrabold text-gray-900 text-center mb-6 pt-8">${esc(comp.title)}</h2>
-            <p class="text-gray-700 text-base sm:text-lg leading-relaxed mb-8 px-4 text-center max-w-full sm:max-w-xl mx-auto">
-                ${esc(comp.description)}
-            </p>
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 text-gray-800 text-sm sm:text-base px-4 sm:px-8">
-                <div class="flex items-center space-x-2">
-                    <svg class="w-5 h-5 sm:w-6 sm:h-6 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M5.121 17.804A8.959 8.959 0 0112 15a8.959 8.959 0 016.879 2.804M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
-                    <strong><span>${esc(comp.user.username)}</span></strong>
-                </div>
-                <div class="flex items-center space-x-2">
-                    <svg class="w-5 h-5 sm:w-6 sm:h-6 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 14h10M9 18h6" />
-                        </svg>
-                    <strong><span>${user.hostel_no}</span></strong>
-                </div>
-                 <div class="flex items-center space-x-2">
-                        <svg class="w-5 h-5 sm:w-6 sm:h-6 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" >
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 21h16V7H4v14zM9 21V12h6v9" />
-                            <circle cx="12" cy="16" r="1" />
-                        </svg>
-                        <strong>Room: ${esc(comp.user.room_no)}</strong>
-                    </div>
-
-                  <div class="flex items-center space-x-2">
-  
-  <div class="flex items-center space-x-2 whitespace-nowrap">
-  <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 sm:w-6 sm:h-6 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
-    <rect x="4" y="7" width="16" height="14" />
-    <line x1="16" y1="3" x2="16" y2="7" />
-    <line x1="8" y1="3" x2="8" y2="7" />
-    <line x1="4" y1="11" x2="20" y2="11" />
-  </svg>
-  <strong>
-    ${new Date(comp.createdAt).toLocaleDateString('en-IN', {
-                    timeZone: 'Asia/Kolkata',
-                    day: '2-digit',
-                    month: 'long',
-                    year: 'numeric'
-                })}
-  </strong>
-</div>
-
-</div>
-            </div>
+        const card = document.createElement("article");
+        card.className = "ticket " + priClass;
+        card.innerHTML = `
+          <div class="ticket-top">
+            <span class="badge badge-cat">${esc(comp.category)}</span>
+            <span class="badge ${inProgress ? "badge-progress" : "badge-open"}">${inProgress ? "In progress" : "Open"}</span>
+            <span class="pri">${esc(pri)} priority</span>
+          </div>
+          <h2>${esc(comp.title)}</h2>
+          <p class="desc">${esc(comp.description)}</p>
+          <div class="meta">
+            <span>${ICON_USER}${esc(owner.username)}</span>
+            <span>${ICON_ROOM}${esc(comp.hostel_no || user.hostel_no)} &middot; Room ${esc(owner.room_no)}</span>
+            <span>${ICON_DATE}${new Date(comp.createdAt).toLocaleDateString("en-IN", { timeZone: "Asia/Kolkata", day: "2-digit", month: "short", year: "numeric" })}</span>
+          </div>
         `;
-                            // ---- "Me too" button ----
-                const votes = Array.isArray(comp.upvotes) ? comp.upvotes.map(String) : [];
-                if (comp.meTooCount === undefined) comp.meTooCount = votes.length;
-                if (comp.meTooVoted === undefined) comp.meTooVoted = votes.includes(String(user.id));
-                const isOwn = String(comp.user._id) === String(user.id);
 
-                const meTooBar = document.createElement("div");
-                meTooBar.className = "flex justify-center items-center gap-3 mt-6";
+        // ---- "Me too" ----
+        const votes = Array.isArray(comp.upvotes) ? comp.upvotes.map(String) : [];
+        if (comp.meTooCount === undefined) comp.meTooCount = votes.length;
+        if (comp.meTooVoted === undefined) comp.meTooVoted = votes.includes(String(user.id));
+        const isOwn = String(owner._id) === String(user.id);
 
-                if (isOwn) {
-                    // apni complaint par vote nahi, sirf count dikhao
-                    const info = document.createElement("span");
-                    info.className = "text-sm text-gray-500";
-                    info.textContent = comp.meTooCount + " student(s) affected";
-                    meTooBar.appendChild(info);
-                } else {
-                    const btn = document.createElement("button");
-                    btn.type = "button";
+        const foot = document.createElement("div");
+        foot.className = "ticket-foot";
 
-                    const paint = () => {
-                        btn.textContent = (comp.meTooVoted ? "✓ Me too" : "👍 Me too") + " (" + comp.meTooCount + ")";
-                        btn.className = comp.meTooVoted
-                            ? "px-5 py-2 rounded-full font-semibold shadow bg-blue-600 text-white"
-                            : "px-5 py-2 rounded-full font-semibold shadow border border-blue-600 text-blue-600 bg-white hover:bg-blue-50";
-                    };
-                    paint();
+        if (isOwn) {
+          const info = document.createElement("span");
+          info.textContent = comp.meTooCount + " other student(s) affected";
+          foot.appendChild(info);
+        } else {
+          const hint = document.createElement("span");
+          hint.textContent = "Facing the same problem?";
+          foot.appendChild(hint);
 
-                    btn.addEventListener("click", async () => {
-                        btn.disabled = true;
-                        try {
-                            const res = await fetch("/complaint/upvote/" + comp._id, { method: "POST" });
-                            const out = await res.json();
-                            if (out.ok) {
-                                comp.meTooVoted = out.voted;
-                                comp.meTooCount = out.count;
-                                paint();
-                            } else {
-                                alert(out.error || "Could not save your vote");
-                            }
-                        } catch (e) {
-                            alert("Network error, try again");
-                        }
-                        btn.disabled = false;
-                    });
-                    meTooBar.appendChild(btn);
-                }
-                card.appendChild(meTooBar);
-                recentComplaints.appendChild(card);
-            });
+          const btn = document.createElement("button");
+          btn.type = "button";
+
+          const paint = () => {
+            const icon = '<svg width="16" height="16" viewBox="0 0 24 24" fill="' + (comp.meTooVoted ? "currentColor" : "none") + '" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="' + THUMB + '"/></svg>';
+            btn.innerHTML = icon + "<span>Me too &middot; " + Number(comp.meTooCount) + "</span>";
+            btn.className = "btn btn-sm " + (comp.meTooVoted ? "btn-primary" : "btn-ghost");
+            btn.setAttribute("aria-pressed", String(!!comp.meTooVoted));
+          };
+          paint();
+
+          btn.addEventListener("click", async () => {
+            btn.disabled = true;
+            try {
+              const res = await fetch("/complaint/upvote/" + comp._id, { method: "POST" });
+              const out = await res.json();
+              if (out.ok) {
+                comp.meTooVoted = out.voted;
+                comp.meTooCount = out.count;
+                paint();
+              } else {
+                alert(out.error || "Could not save your vote");
+              }
+            } catch (e) {
+              alert("Network error, try again");
+            }
+            btn.disabled = false;
+          });
+          foot.appendChild(btn);
         }
 
+        card.appendChild(foot);
+        recentComplaints.appendChild(card);
+      });
+    }
 
-        // 3️⃣ Sort dropdown change event
-        document.getElementById("categorySort").addEventListener("change", (e) => {
-            renderComplaints(e.target.value);
-        });
+    document.getElementById("categorySort").addEventListener("change", (e) => {
+      renderComplaints(e.target.value);
+    });
 
-        // 4️⃣ Initial render
-renderComplaints();
-    </script>
-    <footer class="text-center text-gray-500 py-4">
-    Developed by Harsh Kumar Singh | GL Bajaj Institute of Technology &amp; Management, Greater Noida
-</footer>
-    <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
+    renderComplaints();
+  </script>
 </body>
 
 </html>

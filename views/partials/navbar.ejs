@@ -1,0 +1,61 @@
+<%
+  var _u = (typeof user !== 'undefined' && user) ? user : {};
+  var _name = _u.username || 'Student';
+  var _initial = String(_name).trim().charAt(0).toUpperCase() || 'S';
+  var _active = (typeof active !== 'undefined') ? active : '';
+%>
+<header class="nb">
+  <div class="nb-in">
+    <a class="nb-logo" href="/user/home"><img src="/college-logo.png" alt="GLBITM logo" /></a>
+
+    <nav class="nb-links">
+      <a href="/user/home" class="<%= _active === 'home' ? 'on' : '' %>">Recent complaints</a>
+      <a href="/complaint/myComplaints" class="<%= _active === 'mine' ? 'on' : '' %>">My complaints</a>
+      <a href="/complaint/add" class="<%= _active === 'add' ? 'on' : '' %>">Add complaint</a>
+    </nav>
+
+    <div class="nb-right">
+      <button type="button" class="avatar-btn" id="avatarBtn" aria-haspopup="true" aria-expanded="false">
+        <span class="avatar"><%= _initial %></span>
+        <span class="avatar-name"><%= _name %></span>
+        <svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+
+      <div class="menu" id="avatarMenu" hidden>
+        <div class="menu-head">
+          <b><%= _name %></b>
+          <% if (_u.email) { %><span class="menu-email"><%= _u.email %></span><% } %>
+          <% if (_u.hostel_no) { %><span class="menu-chip"><%= _u.hostel_no %><% if (_u.room_no) { %> &middot; Room <%= _u.room_no %><% } %></span><% } %>
+        </div>
+
+        <div class="menu-mobile-only">
+          <a href="/user/home">Recent complaints</a>
+          <a href="/complaint/myComplaints">My complaints</a>
+          <a href="/complaint/add">Add complaint</a>
+          <div class="menu-sep"></div>
+        </div>
+
+        <form action="/user/logout" method="POST">
+          <button type="submit" class="menu-item danger">Log out</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</header>
+
+<script>
+  (function () {
+    var b = document.getElementById("avatarBtn");
+    var m = document.getElementById("avatarMenu");
+    if (!b || !m) return;
+    function close() { m.hidden = true; b.setAttribute("aria-expanded", "false"); }
+    b.addEventListener("click", function (e) {
+      e.stopPropagation();
+      var willOpen = m.hidden;
+      m.hidden = !willOpen;
+      b.setAttribute("aria-expanded", String(willOpen));
+    });
+    document.addEventListener("click", function (e) { if (!m.contains(e.target)) close(); });
+    document.addEventListener("keydown", function (e) { if (e.key === "Escape") close(); });
+  })();
+</script>
