@@ -11,6 +11,7 @@ const userRouter = require("./routes/userRouter");
 const complainRouter = require("./routes/complainRouter");
 const adminRouter = require("./routes/adminRouter");
 const authMiddleware = require("./middleware/auth");
+const { startEscalation } = require("./utils/escalation");
 
 const app = express();
 
@@ -86,6 +87,7 @@ const PORT = process.env.PORT || 1080;
 (async () => {
   try {
     await connectDB();
+    startEscalation();
 
     app.listen(PORT, "0.0.0.0", () => {
       console.log(`🚀 Hostel Complaint Server running on port ${PORT}`);

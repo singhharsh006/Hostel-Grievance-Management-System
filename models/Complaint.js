@@ -36,8 +36,13 @@ const complaintSchema = new mongoose.Schema({
   reopenCount: { type: Number, default: 0 },
   reopenedAt: { type: Date, default: null },
   reopenReason: { type: String, trim: true },
+  
   // ---- NEW: "Me too" upvotes (user ids) ----
   upvotes: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+
+  // ---- NEW: auto-escalation ----
+  escalatedAt: { type: Date, default: null },
+  reminderSentAt: { type: Date, default: null },
 });
 
 complaintSchema.pre("save", function (next) {

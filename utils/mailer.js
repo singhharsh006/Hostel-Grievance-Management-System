@@ -84,3 +84,11 @@ exports.reopenedNotify = (user, c) => {
        ${row("Times reopened", c.reopenCount)}${row("Priority", c.priority)}
        ${row("Student says", c.reopenReason)}`));
 };
+  // Complaint bahut der se pending ho to sirf admin ko reminder
+  exports.escalationReminder = (user, c, hours) =>
+  send(process.env.ADMIN_EMAIL, `[${c.priority}] Pending ${hours}h+: ${c.title}`,
+    wrap("Complaint still unresolved",
+      `<p>This complaint has been pending for more than ${hours} hours.</p>
+       ${row("Student", `${user.username} (${c.hostel_no}, Room ${user.room_no || "-"})`)}
+       ${row("Title", c.title)}${row("Category", c.category)}
+       ${row("Priority", c.priority)}${row("Status", c.status)}`));
