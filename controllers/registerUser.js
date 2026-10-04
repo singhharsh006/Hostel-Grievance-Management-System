@@ -2,31 +2,46 @@ const User = require("../models/User");
 const bcrypt = require("bcrypt");
 const saltRounds = 10;
 
+const ALLOWED_HOSTELS = ["H1", "H2", "H3", "H4"];
+
 const registerUser = async (data) => {
-  let existingUser = await User.findOne({ scholar_no: data.scholarNumber });
-  if (existingUser) {
-    throw new Error("User already exists");
+  const email = String(data.email || "").trim().toLowerCase();
+  const phone = String(data.phoneNumber || "").trim();
+  const room = String(data.roomNumber || "").trim();
+  const password = String(data.password || "");
+
+  if (!ALLOWED_HOSTELS.includes(data.hostelNumber)) {
+    throw new Error("Please choose a valid hostel");
   }
-  existingUser = await User.findOne({ phone: data.phoneNumber });
-  if (existingUser) {
-    throw new Error("phone number is already registered");
+  if (!/^[0-9]{10}$/.test(phone)) {
+    throw new Error("Phone number must be 10 digits");
   }
-  existingUser = await User.findOne({ email: data.email });
+  if (!/^[0-9]{1,4}$/.test(room)) {
+    throw new Error("Room number must be digits only");
+  }
+  if (password.length < 6) {
+    throw new Error("Password must be at least 6 characters");
+  }
+
+  let existingUser = await User.findOne({ email });
   if (existingUser) {
     throw new Error("email is already registered");
   }
-  const hashedPassword = await bcrypt.hash(data.password, saltRounds);
+  existingUser = await User.findOne({ phone });
+  if (existingUser) {
+    throw new Error("phone number is already registered");
+  }
+
+  const hashedPassword = await bcrypt.hash(password, saltRounds);
   const newUser = new User({
     username: data.userName,
-    email: data.email,
-    phone: data.phoneNumber,
+    email,
+    phone,
     hostel_no: data.hostelNumber,
-    room_no: data.roomNumber,
-    scholar_no: data.scholarNumber,
+    room_no: room,
     password: hashedPassword,
   });
   await newUser.save();
-  console.log("User registered");
   return true;
 };
 

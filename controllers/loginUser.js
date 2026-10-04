@@ -7,27 +7,24 @@ const SECRET = process.env.JWT_SECRET;
 const EXPIRES_IN = process.env.JWT_EXPIRES_IN;
 
 const loginUser = async (data) => {
-  const scholarNo = data.scholarNumber;
-  const password = data.password;
+  const email = String(data.email || "").trim().toLowerCase();
+  const password = String(data.password || "");
 
-  const user = await User.findOne({ scholar_no: scholarNo });
+  const user = await User.findOne({ email });
 
+  // Same message for both cases, so nobody can check which emails are registered
   if (!user) {
-    throw new Error("User does not exist");
+    throw new Error("Email or password is incorrect");
   }
 
   const valid = await bcrypt.compare(password, user.password);
-
   if (!valid) {
-    throw new Error("Scholar number or password is incorrect");
+    throw new Error("Email or password is incorrect");
   }
-console.log("SECRET =", SECRET);
-console.log("EXPIRES_IN =", EXPIRES_IN);
-console.log("typeof =", typeof EXPIRES_IN);
+
   const token = jwt.sign(
     {
       id: user._id,
-      scholar_no: user.scholar_no,
       username: user.username,
       hostel_no: user.hostel_no,
       room_no: user.room_no,
@@ -35,9 +32,7 @@ console.log("typeof =", typeof EXPIRES_IN);
       email: user.email,
     },
     SECRET,
-    {
-      expiresIn: EXPIRES_IN,
-    }
+    { expiresIn: EXPIRES_IN }
   );
 
   return token;

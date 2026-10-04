@@ -115,15 +115,15 @@
 
         <form class="login-card" action="/user/login" method="POST">
           <h2>Welcome back</h2>
-          <p class="sub">Log in with your scholar number.</p>
+          <p class="sub">Log in with your email and password.</p>
 
           <% if (typeof message !== "undefined" && message) { %>
             <div class="alert" role="alert"><%= message %></div>
           <% } %>
 
           <div class="group">
-            <label class="label" for="scholarNumber">Scholar number</label>
-            <input class="field" id="scholarNumber" name="scholarNumber" type="number" placeholder="e.g. 2201234" autocomplete="username" />
+            <label class="label" for="email">Email</label>
+            <input class="field" id="email" name="email" type="email" placeholder="you@example.com" autocomplete="username" />
           </div>
 
           <div class="group">

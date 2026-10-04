@@ -1,82 +1,141 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GLBITM Hostel Complaint Portal</title>
-    <link href="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.css" rel="stylesheet" />
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-   
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Warden Login | GLBITM Hostel Complaint Portal</title>
+  <link rel="stylesheet" href="/theme.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    .wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
 
+    a.btn.btn-primary, a.btn.btn-primary:hover { color: #0e1320; }
+    a.btn.btn-ghost, a.btn.btn-ghost:hover { color: var(--text); }
 
+    .topbar { border-bottom: 1px solid var(--border); }
+    .topbar .wrap { display: flex; align-items: center; gap: 32px; height: 84px; }
+    .topbar img { height: 56px; width: auto; object-fit: contain; display: block; }
+    .topbar nav { display: flex; gap: 28px; }
+    .topbar nav a { color: var(--muted); text-decoration: none; font-weight: 600; font-size: 0.95rem; padding: 6px 0; border-bottom: 2px solid transparent; }
+    .topbar nav a:hover { color: var(--text); }
+    .topbar nav a.on { color: var(--text); border-bottom-color: var(--accent); }
+    .topbar .actions { margin-left: auto; display: flex; gap: 10px; }
+
+    .hero { position: relative; overflow: hidden; }
+    .hero::before { content: ""; position: absolute; right: -140px; top: -120px; width: 460px; height: 460px; border-radius: 50%; border: 1px solid var(--border); opacity: 0.7; }
+    .hero::after { content: ""; position: absolute; left: -90px; bottom: -110px; width: 260px; height: 260px; border-radius: 50%; border: 1px solid var(--border); opacity: 0.6; }
+    .hero .wrap { position: relative; z-index: 1; display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 56px; align-items: center; padding-top: 64px; padding-bottom: 80px; min-height: calc(100vh - 84px - 90px); }
+    .tag { display: inline-block; font: 700 0.78rem var(--font-body); letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); padding-bottom: 8px; border-bottom: 2px solid var(--accent); margin-bottom: 22px; }
+    .hero h1 { font-size: clamp(2.6rem, 5vw, 4.2rem); line-height: 1.05; margin: 0 0 20px; }
+    .hero h1 em { font-style: normal; color: var(--accent); }
+    .hero p.lead { color: var(--muted); font-size: 1.1rem; max-width: 520px; margin: 0 0 32px; }
+    .points { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
+    .points li { display: flex; gap: 14px; align-items: baseline; color: var(--muted); }
+    .points b { font-family: var(--font-head); color: var(--accent); min-width: 28px; }
+
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 32px; }
+    .card h2 { font-size: 1.6rem; margin: 0 0 4px; }
+    .card .sub { margin: 0 0 6px; color: var(--muted); font-size: 0.95rem; }
+    .card .field { border-color: #44516f; }
+    .card .field::placeholder { color: #8590a8; }
+    .group { margin-top: 18px; }
+    .pw { position: relative; }
+    .pw .field { padding-right: 64px; }
+    .pw button { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: 0; color: var(--muted); font: 600 0.8rem var(--font-body); cursor: pointer; padding: 6px 8px; }
+    .pw button:hover { color: var(--text); }
+    .alert { margin-top: 16px; padding: 10px 14px; border-radius: 10px; font-size: 0.9rem; color: #ff8a94; background: rgba(240, 97, 109, 0.12); border: 1px solid rgba(240, 97, 109, 0.4); }
+    .card .foot { margin-top: 22px; padding-top: 16px; border-top: 1px solid var(--border); font-size: 0.9rem; color: var(--muted); }
+
+    .pagefoot { border-top: 1px solid var(--border); padding: 24px 0; text-align: center; color: var(--muted); font-size: 0.88rem; line-height: 1.7; }
+    .pagefoot strong { color: var(--text); font-weight: 600; }
+
+    @media (max-width: 900px) {
+      .topbar nav { display: none; }
+      .hero .wrap { grid-template-columns: 1fr; gap: 36px; padding-top: 40px; padding-bottom: 48px; min-height: 0; }
+    }
+    @media (max-width: 520px) {
+      .topbar .wrap { height: 72px; gap: 12px; }
+      .topbar img { height: 44px; }
+      .topbar .actions .btn-ghost { display: none; }
+      .card { padding: 24px 20px; }
+    }
+  </style>
 </head>
+<body class="theme">
 
-<body>
+  <header class="topbar">
+    <div class="wrap">
+      <img src="/college-logo.png" alt="GLBITM logo" />
+      <nav>
+        <a href="/user/login">Home</a>
+        <a href="/user/login#how">How it works</a>
+        <a href="/admin/login" class="on">Warden login</a>
+      </nav>
+      <div class="actions">
+        <a class="btn btn-ghost btn-sm" href="/user/login">Student login</a>
+        <a class="btn btn-primary btn-sm" href="/user/register">Join now</a>
+      </div>
+    </div>
+  </header>
 
-       <div class="min-h-screen flex">
-       
+  <main>
+    <section class="hero">
+      <div class="wrap">
+        <div>
+          <span class="tag">Warden access</span>
+          <h1>Every open complaint, <em>one screen</em>.</h1>
+          <p class="lead">Filter by priority, see how many students are affected, resolve with a photo, and export the list.</p>
+          <ul class="points">
+            <li><b>01</b> Most affected issues sort to the top</li>
+            <li><b>02</b> Reopened complaints show the student's reason</li>
+            <li><b>03</b> Complaints pending too long escalate automatically</li>
+          </ul>
+        </div>
 
-  <!-- Left Section - Visible only on large screens -->
-         <div class="hidden lg:flex w-1/2 relative bg-gradient-to-b from-red-600 to-red-800 text-white items-center justify-center">
-            <div class="absolute inset-0 bg-[url('/complaint.png')] bg-cover bg-center opacity-30"></div>
-             <div class="relative z-10 flex flex-col items-center p-6 text-center">
-                <img src="/college-logo.png" alt="Hostel Complaint Portal Logo" class="w-40 h-40 object-contain mb-6" />
-                        <h1 class="text-5xl font-bold mb-4">
-                                GLBITM Hostel Complaint Portal
-                        </h1>
-                <h1 class="text-3xl font-bold mb-4">Login And Register Your Complaint</h1>
-                <p class="text-lg max-w-md mx-auto">
-                    Let's connect and improve your hostel experience. Your voice matters — let’s make it heard.
-                </p>
-                </div>
+        <form class="card" action="/admin/login" method="POST">
+          <h2>Admin login</h2>
+          <p class="sub">Sign in to manage your hostel's complaints.</p>
+
+          <% if (typeof message !== "undefined" && message) { %>
+            <div class="alert" role="alert"><%= message %></div>
+          <% } %>
+
+          <div class="group">
+            <label class="label" for="username">Username</label>
+            <input class="field" id="username" name="username" type="text" placeholder="Admin username" autocomplete="username" />
+          </div>
+
+          <div class="group">
+            <label class="label" for="password">Password</label>
+            <div class="pw">
+              <input class="field" id="password" name="password" type="password" placeholder="Enter your password" autocomplete="current-password" />
+              <button type="button" id="togglePw">Show</button>
             </div>
+          </div>
 
-            <!-- Right Section - Form -->
-            <div class=" w-full lg:w-1/2 items-center justify-center bg-gray-50 p-8">
-                 <!-- checking user exit or not -->
-               
-                       <div class="lg:hidden mb-6 flex justify-center  w-full">
-                        <img src="/college-logo.png" alt="Hostel Complaint Portal Logo" class="w-40 h-40 object-contain" />
-                      </div>
-                <form class="bg-white shadow-lg rounded-lg p-8 w-full max-w-md" action="/admin/login" method="POST">
+          <button class="btn btn-primary btn-lg btn-block" style="margin-top:24px">Log in</button>
 
-                     <% if (typeof message !== "undefined" && message) { %>
-                    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-                        <span class="block sm:inline"><%= message %></span>
-                    </div>
-                    <% } %>
-                <h2 class="text-2xl font-bold text-red-700 mb-6">Admin Login </h2>
-            
-                <div class="mb-4">
-                    <label class="block mb-1 font-semibold text-gray-700">User Name</label>
-                    <input name="username" type="string" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter your scholar number">
-                </div>
-             
-                <div class="mb-4">
-                    <label class="block mb-1 font-semibold text-gray-700">Password</label>
-                    <input name="password" type="password" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter your  password">
-                </div>
-                
-                
-                
-                <button class="w-full bg-red-700 hover:bg-red-800 text-white font-semibold py-2 px-4 rounded-lg transition duration-300">
-                    Submit
-                </button>
-                
-                 <p class="mt-4 text-center text-gray-600">
-                    Student?   <a href="/user/login" class="text-blue-600 hover:underline">Click here</a>
+          <div class="foot">Student? <a href="/user/login">Go to student login</a></div>
+        </form>
+      </div>
+    </section>
+  </main>
 
-                </p>
-                </form>
-                
-            </div>
-            </div>
+  <footer class="pagefoot">
+    <div class="wrap">
+      Developed by <strong>Harsh Kumar Singh</strong><br />
+      GL Bajaj Institute of Technology &amp; Management, Greater Noida
+    </div>
+  </footer>
 
-                
-     
-
-    <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
-   
+  <script>
+    var pw = document.getElementById("password");
+    var tg = document.getElementById("togglePw");
+    tg.addEventListener("click", function () {
+      var show = pw.type === "password";
+      pw.type = show ? "text" : "password";
+      tg.textContent = show ? "Hide" : "Show";
+    });
+  </script>
 </body>
-
 </html>

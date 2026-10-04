@@ -38,7 +38,7 @@ This portal provides distinct functionalities for students and administrators to
 
 ### For Students 🧑‍🎓
 
-* **Secure Registration:** Easy onboarding using a unique **Scholar No**, Hostel No, Room No, Email, and Phone.
+* **Secure Registration:** Easy onboarding using a unique Hostel No, Room No, Email, and Phone.
 * **Raise Complaints:** Quickly report problems across predefined categories:
     * 💧 Water
     * 💡 Electricity
