@@ -12,19 +12,31 @@
 
   <%- include('partials/navbar', { active: 'mine' }) %>
 
-    <main class="page">
-      <div class="page-head">
-        <div>
-          <h1>My complaints</h1>
-          <p class="muted">Track, resolve, rate or reopen your complaints.</p>
-        </div>
-        <div class="toolbar">
-          <a class="btn btn-primary" href="/complaint/add">New complaint</a>
+    <section class="dh">
+    <div class="page dh-in">
+      <div>
+        <span class="dh-eyebrow">Your dashboard</span>
+        <h1>My <em>complaints</em></h1>
+        <p class="dh-lead">Track every complaint you have raised, mark it resolved, rate the fix, or reopen it if the problem is still there.</p>
+        <div class="dh-actions">
+          <a class="btn btn-primary btn-lg" href="/complaint/add">New complaint</a>
+          <a class="btn btn-ghost btn-lg" href="/user/home">Recent complaints</a>
         </div>
       </div>
+      <div class="dh-stats">
+        <div class="dh-stat accent"><b id="stTotal">0</b><span>Total complaints</span></div>
+        <div class="dh-stat"><b id="stPending">0</b><span>Not resolved</span></div>
+        <div class="dh-stat"><b id="stDone">0</b><span>Resolved</span></div>
+        <div class="dh-stat"><b id="stReopen">0</b><span>Reopened</span></div>
+      </div>
+    </div>
+  </section>
 
-      <div id="myComplaints" class="tickets"></div>
-    </main>
+  <main class="page dh-main">
+    <div id="myComplaints" class="tickets"></div>
+  </main>
+
+  <%- include('partials/tips') %>
 
     <footer class="pagefoot">
       <div class="wrap">
@@ -242,6 +254,13 @@
 
         watchFilters(renderMyComplaints);
         renderMyComplaints();
+        (function () {
+      const set = (id, v) => { document.getElementById(id).textContent = v; };
+      set("stTotal", complaints.length);
+      set("stPending", complaints.filter(c => c.status !== "resolved").length);
+      set("stDone", complaints.filter(c => c.status === "resolved").length);
+      set("stReopen", complaints.filter(c => Number(c.reopenCount) > 0).length);
+    })();
       </script>
       <% if (typeof message !=="undefined" && message) { %>
         <script>

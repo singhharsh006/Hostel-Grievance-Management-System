@@ -12,10 +12,30 @@
 
   <%- include('partials/navbar', { active: 'home' }) %>
 
-  <main class="page">
+  <section class="dh">
+    <div class="page dh-in">
+      <div>
+        <span class="dh-eyebrow">Student dashboard</span>
+        <h1>Recent <em>complaints</em></h1>
+        <p class="dh-lead">See what is broken in your hostel, back the issues that affect you too, and follow them until they are fixed.</p>
+        <div class="dh-actions">
+          <a class="btn btn-primary btn-lg" href="/complaint/add">New complaint</a>
+          <a class="btn btn-ghost btn-lg" href="/complaint/myComplaints">My complaints</a>
+        </div>
+      </div>
+      <div class="dh-stats">
+        <div class="dh-stat accent"><b id="stOpen">0</b><span>Open in your hostel</span></div>
+        <div class="dh-stat"><b id="stProg">0</b><span>In progress</span></div>
+        <div class="dh-stat"><b id="stHigh">0</b><span>High or urgent</span></div>
+        <div class="dh-stat"><b id="stVotes">0</b><span>Me too votes</span></div>
+      </div>
+    </div>
+  </section>
+
+  <main class="page dh-main">
     <div class="page-head">
       <div>
-        <h1>Recent complaints</h1>
+        <h2 class="dh-sub">Open in your hostel</h2>
         <p class="muted" id="subline"></p>
       </div>
       <div class="toolbar">
@@ -29,12 +49,13 @@
           <option value="washroom">Washroom</option>
           <option value="general">General</option>
         </select>
-        <a class="btn btn-primary" href="/complaint/add">New complaint</a>
       </div>
     </div>
 
     <div id="recentComplaints" class="tickets"></div>
   </main>
+
+  <%- include('partials/tips') %>
 
   <footer class="pagefoot">
     <div class="wrap">
@@ -169,6 +190,14 @@
     });
 
     renderComplaints();
+
+    (function () {
+      const set = (id, v) => { document.getElementById(id).textContent = v; };
+      set("stOpen", complaints.length);
+      set("stProg", complaints.filter(c => c.status === "in progress").length);
+      set("stHigh", complaints.filter(c => c.priority === "High" || c.priority === "Urgent").length);
+      set("stVotes", complaints.reduce((s, c) => s + (Array.isArray(c.upvotes) ? c.upvotes.length : 0), 0));
+    })();
   </script>
 </body>
 

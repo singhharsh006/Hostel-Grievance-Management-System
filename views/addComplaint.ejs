@@ -12,71 +12,71 @@
 
   <%- include('partials/navbar', { active: 'add' }) %>
 
-    <main class="page">
-      <div class="page-head">
-        <div>
-          <h1>Add complaint</h1>
-          <p class="muted">Describe the problem and the warden will be notified.</p>
-        </div>
+    <section class="dh">
+    <div class="page dh-in">
+      <div>
+        <span class="dh-eyebrow">New complaint</span>
+        <h1>Report a <em>problem</em></h1>
+        <p class="dh-lead">Describe what is wrong and the warden will be notified. You can follow it until it is fixed.</p>
+        <ul class="dh-steps">
+          <li><b>01</b>Pick a category and describe the problem</li>
+          <li><b>02</b>Attach a photo if it helps (optional)</li>
+          <li><b>03</b>Track it under My complaints</li>
+        </ul>
       </div>
 
       <div class="form-wrap">
         <div class="form-card">
 
-          <% if (typeof error !=="undefined" && error) { %>
-            <div class="alert-error">
-              <%= error %>
+          <% if (typeof error !== "undefined" && error) { %>
+            <div class="alert-error"><%= error %></div>
+          <% } %>
+
+          <form id="complaintFormEl" action="/complaint/add" method="POST" enctype="multipart/form-data">
+
+            <div class="row">
+              <label class="label" for="category">Category</label>
+              <select id="category" name="category" class="field" required>
+                <option value="">Select a category</option>
+                <option value="water">Water</option>
+                <option value="network">Network</option>
+                <option value="mess">Mess</option>
+                <option value="electricity">Electricity</option>
+                <option value="washroom">Washroom</option>
+                <option value="general">General</option>
+              </select>
             </div>
-            <% } %>
 
-              <form id="complaintFormEl" action="/complaint/add" method="POST" enctype="multipart/form-data">
+            <div class="row">
+              <label class="label" for="title">Title</label>
+              <input id="title" name="title" type="text" class="field" placeholder="e.g. No water supply on 1st floor" required />
+            </div>
 
-                <div class="row">
-                  <label class="label" for="category">Category</label>
-                  <select id="category" name="category" class="field" required>
-                    <option value="">Select a category</option>
-                    <option value="water">Water</option>
-                    <option value="network">Network</option>
-                    <option value="mess">Mess</option>
-                    <option value="electricity">Electricity</option>
-                    <option value="washroom">Washroom</option>
-                    <option value="general">General</option>
-                  </select>
-                </div>
+            <div class="row">
+              <label class="label" for="description">Description</label>
+              <textarea id="description" name="description" class="field" rows="4" placeholder="What is wrong, since when, and where?" required></textarea>
+            </div>
 
-                <div class="row">
-                  <label class="label" for="title">Title</label>
-                  <input id="title" name="title" type="text" class="field"
-                    placeholder="e.g. No water supply on 1st floor" required />
-                </div>
+            <div class="row">
+              <label class="label" for="photoInput">Photo <span class="opt">(optional)</span></label>
+              <input id="photoInput" name="image" type="file" accept="image/jpeg,image/png,image/webp" class="field" />
+              <p class="hint">JPG, PNG or WEBP, up to 2 MB.</p>
+              <p id="photoError" class="field-error hidden"></p>
 
-                <div class="row">
-                  <label class="label" for="description">Description</label>
-                  <textarea id="description" name="description" class="field" rows="4"
-                    placeholder="What is wrong, since when, and where?" required></textarea>
-                </div>
+              <div id="photoPreviewWrap" class="photo-preview hidden">
+                <img id="photoPreview" alt="Selected photo preview" />
+                <button type="button" id="photoRemove" class="link-danger">Remove photo</button>
+              </div>
+            </div>
 
-                <div class="row">
-                  <label class="label" for="photoInput">Photo <span class="opt">(optional)</span></label>
-                  <input id="photoInput" name="image" type="file" accept="image/jpeg,image/png,image/webp"
-                    class="field" />
-                  <p class="hint">JPG, PNG or WEBP, up to 2 MB.</p>
-                  <p id="photoError" class="field-error hidden"></p>
+            <p class="hint" style="margin:0 0 24px">Priority is set automatically from your title and description.</p>
 
-                  <div id="photoPreviewWrap" class="photo-preview hidden">
-                    <img id="photoPreview" alt="Selected photo preview" />
-                    <button type="button" id="photoRemove" class="link-danger">Remove photo</button>
-                  </div>
-                </div>
-
-                <p class="hint" style="margin:0 0 24px">Priority is set automatically from your title and description.
-                </p>
-
-                <button id="submitBtn" type="submit" class="btn btn-primary btn-lg btn-block">Submit complaint</button>
-              </form>
+            <button id="submitBtn" type="submit" class="btn btn-primary btn-lg btn-block">Submit complaint</button>
+          </form>
         </div>
       </div>
-    </main>
+    </div>
+  </section>
 
     <footer class="pagefoot">
       <div class="wrap">

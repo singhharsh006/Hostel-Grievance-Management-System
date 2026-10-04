@@ -1169,3 +1169,219 @@ a.btn.btn-ghost:hover {
   outline: 2px solid #f26b2a;
   border-radius: 4px;
 }
+
+/* ---------- Dashboard hero (home, my complaints, add complaint) ---------- */
+.dh {
+  position: relative;
+  overflow: hidden;
+  border-bottom: 1px solid #263049;
+}
+
+.dh::before {
+  content: "";
+  position: absolute;
+  right: -160px;
+  top: -140px;
+  width: 520px;
+  height: 520px;
+  border: 1px solid #1c2438;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.dh::after {
+  content: "";
+  position: absolute;
+  left: -140px;
+  bottom: -220px;
+  width: 380px;
+  height: 380px;
+  border: 1px solid #1c2438;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.dh-in {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 48px;
+  align-items: center;
+  padding-top: 56px;
+  padding-bottom: 56px;
+}
+
+.dh-eyebrow {
+  display: inline-block;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: #f26b2a;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #f26b2a;
+  margin-bottom: 24px;
+}
+
+.dh h1 {
+  font-family: "Bricolage Grotesque", sans-serif;
+  font-size: clamp(36px, 5vw, 56px);
+  line-height: 1.05;
+  margin: 0 0 24px;
+  color: #e8ebf2;
+}
+
+.dh h1 em {
+  font-style: normal;
+  color: #f26b2a;
+}
+
+.dh-lead {
+  color: #9aa4ba;
+  font-size: 18px;
+  line-height: 1.6;
+  max-width: 520px;
+  margin: 0 0 32px;
+}
+
+.dh-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.dh-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.dh-stat {
+  background: #151b2b;
+  border: 1px solid #263049;
+  border-radius: 16px;
+  padding: 24px;
+}
+
+.dh-stat b {
+  display: block;
+  font-family: "Bricolage Grotesque", sans-serif;
+  font-size: 40px;
+  line-height: 1;
+  color: #e8ebf2;
+  margin-bottom: 8px;
+}
+
+.dh-stat span {
+  color: #9aa4ba;
+  font-size: 14px;
+}
+
+.dh-stat.accent b {
+  color: #f26b2a;
+}
+
+.dh-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 16px;
+}
+
+.dh-steps li {
+  display: flex;
+  gap: 24px;
+  align-items: baseline;
+  color: #e8ebf2;
+  font-size: 18px;
+}
+
+.dh-steps li b {
+  color: #f26b2a;
+  font-size: 15px;
+  min-width: 24px;
+}
+
+.dh-in .form-wrap {
+  max-width: none;
+}
+
+.dh-sub {
+  font-family: "Bricolage Grotesque", sans-serif;
+  font-size: 24px;
+  margin: 0 0 4px;
+  color: #e8ebf2;
+}
+
+.dh-main {
+  padding-top: 40px;
+}
+
+.dh-feats-wrap {
+  border-top: 1px solid #263049;
+  margin-top: 56px;
+  padding-top: 56px;
+  padding-bottom: 56px;
+}
+
+.dh-feats-wrap h2 {
+  text-align: center;
+  font-family: "Bricolage Grotesque", sans-serif;
+  font-size: 32px;
+  margin: 0 0 8px;
+  color: #e8ebf2;
+}
+
+.dh-feats-wrap>p {
+  text-align: center;
+  color: #9aa4ba;
+  margin: 0 auto 32px;
+  max-width: 520px;
+}
+
+.dh-feats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.dh-feat {
+  background: #151b2b;
+  border: 1px solid #263049;
+  border-radius: 16px;
+  padding: 24px;
+  text-align: center;
+}
+
+.dh-feat svg {
+  color: #f26b2a;
+  margin-bottom: 16px;
+}
+
+.dh-feat h3 {
+  margin: 0 0 8px;
+  font-size: 17px;
+  color: #e8ebf2;
+}
+
+.dh-feat p {
+  margin: 0;
+  color: #9aa4ba;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+@media (max-width: 860px) {
+  .dh-in {
+    grid-template-columns: 1fr;
+    gap: 32px;
+    padding-top: 40px;
+    padding-bottom: 40px;
+  }
+
+  .dh-feats {
+    grid-template-columns: 1fr;
+  }
+}
