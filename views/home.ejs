@@ -80,9 +80,9 @@
 
 
 
-const user = <%- JSON.stringify(user || {}) %>;
-const complaints = <%- JSON.stringify(complaints || []) %>;
-
+        const user = <%- JSON.stringify(user || {}).replace(/</g, "\\u003c") %>;
+        const complaints = <%- JSON.stringify(complaints || []).replace(/</g, "\\u003c") %>;
+        const esc = s => String(s ?? "").replace(/[&<>"']/g, ch => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch]));
         const recentComplaints = document.getElementById("recentComplaints");
 
         function getCategoryIcon(category) {
@@ -181,16 +181,16 @@ const complaints = <%- JSON.stringify(complaints || []) %>;
                     Pending
                 </div>
             </div>
-            <h2 class="text-2xl sm:text-4xl font-extrabold text-gray-900 text-center mb-6 pt-8">${comp.title}</h2>
+            <h2 class="text-2xl sm:text-4xl font-extrabold text-gray-900 text-center mb-6 pt-8">${esc(comp.title)}</h2>
             <p class="text-gray-700 text-base sm:text-lg leading-relaxed mb-8 px-4 text-center max-w-full sm:max-w-xl mx-auto">
-                ${comp.description}
+                ${esc(comp.description)}
             </p>
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 text-gray-800 text-sm sm:text-base px-4 sm:px-8">
                 <div class="flex items-center space-x-2">
                     <svg class="w-5 h-5 sm:w-6 sm:h-6 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M5.121 17.804A8.959 8.959 0 0112 15a8.959 8.959 0 016.879 2.804M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
-                    <strong><span>${comp.user.username}</span></strong>
+                    <strong><span>${esc(comp.user.username)}</span></strong>
                 </div>
                 <div class="flex items-center space-x-2">
                     <svg class="w-5 h-5 sm:w-6 sm:h-6 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -203,7 +203,7 @@ const complaints = <%- JSON.stringify(complaints || []) %>;
                             <path stroke-linecap="round" stroke-linejoin="round" d="M4 21h16V7H4v14zM9 21V12h6v9" />
                             <circle cx="12" cy="16" r="1" />
                         </svg>
-                        <strong>Room: ${comp.user.room_no}</strong>
+                        <strong>Room: ${esc(comp.user.room_no)}</strong>
                     </div>
 
                   <div class="flex items-center space-x-2">

@@ -1,13 +1,17 @@
 const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
 const AdminUser = require("../models/adminUser");
 require("dotenv").config();
 
 const SECRET = process.env.JWT_SECRET;
 const EXPIRES_IN = process.env.JWT_EXPIRES_IN;
 
+// bcrypt hash hamesha $2a$ / $2b$ / $2y$ se shuru hota hai
+const isHash = (s) => typeof s === "string" && /^\$2[aby]\$/.test(s);
+
 const loginAdminUser = async (data) => {
-  const username = data.username;
-  const password = data.password;
+  const username = String(data.username || "");
+  const password = String(data.password || "");
 
   const adminUser = await AdminUser.findOne({ username });
 
@@ -15,8 +19,18 @@ const loginAdminUser = async (data) => {
     throw new Error("User does not exist");
   }
 
-  // Keep plain-text comparison ONLY if admin passwords are stored as plain text
-  const valid = password === adminUser.password;
+  let valid = false;
+
+  if (isHash(adminUser.password)) {
+    valid = await bcrypt.compare(password, adminUser.password);
+  } else {
+    // Purana plain-text password: sahi login hone par apne aap hash ho jayega
+    valid = password === adminUser.password;
+    if (valid) {
+      const hashed = await bcrypt.hash(password, 10);
+      await AdminUser.updateOne({ _id: adminUser._id }, { $set: { password: hashed } });
+    }
+  }
 
   if (!valid) {
     throw new Error("Username or password is incorrect");
@@ -30,9 +44,7 @@ const loginAdminUser = async (data) => {
       type: adminUser.type,
     },
     SECRET,
-    {
-      expiresIn: EXPIRES_IN,
-    }
+    { expiresIn: EXPIRES_IN }
   );
 
   return token;

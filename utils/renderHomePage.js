@@ -11,7 +11,6 @@ async function renderHomePage(req, res, extraData = {}, filter = {}) {
     complaints,
     ...extraData,
   };
-  console.log(data);
   return data;
 }
 
