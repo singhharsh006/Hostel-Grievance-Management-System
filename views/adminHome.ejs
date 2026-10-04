@@ -212,7 +212,54 @@
                 recentComplaints.appendChild(card);
             });
         }
+                // ---------- CSV export: downloads the complaints currently shown (after search and filters) ----------
+        function csvCell(v) {
+            let s = String(v ?? "");
+            // stop Excel from running text that starts with = + - @ as a formula
+            if (/^[=+\-@\t\r]/.test(s)) s = "'" + s;
+            return '"' + s.replace(/"/g, '""') + '"';
+        }
 
+        function csvDate(v) {
+            return v ? new Date(v).toLocaleDateString("en-CA") : "";
+        }
+
+        function buildCsv(list) {
+            const header = ["Title", "Category", "Status", "Priority", "Student", "Room", "Hostel",
+                            "Created", "Resolved", "Rating", "Times reopened", "Description"];
+            const rows = list.map(c => {
+                const u = c.user || {};
+                return [c.title, c.category, c.status, c.priority || "", u.username || "", u.room_no || "",
+                        c.hostel_no, csvDate(c.createdAt), csvDate(c.resolvedAt), c.rating || "",
+                        Number(c.reopenCount) || 0, c.description];
+            });
+            return [header, ...rows].map(r => r.map(csvCell).join(",")).join("\r\n");
+        }
+
+        function downloadCsv() {
+            const f = getFilters();
+            const list = sortComplaints(complaints.filter(c => matchesFilters(c, f)), f.sort);
+            if (list.length === 0) {
+                alert("No complaints to export with the current filters.");
+                return;
+            }
+            // \uFEFF makes Excel read the file as UTF-8 (Hindi and special characters stay correct)
+            const blob = new Blob(["\uFEFF" + buildCsv(list)], { type: "text/csv;charset=utf-8;" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "complaints-" + new Date().toLocaleDateString("en-CA") + ".csv";
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            URL.revokeObjectURL(url);
+        }
+
+        const csvBar = document.createElement("div");
+        csvBar.className = "flex justify-end w-full max-w-4xl px-6 mt-2";
+        csvBar.innerHTML = `<button type="button" class="bg-green-600 text-white px-4 py-2 rounded-lg shadow font-semibold hover:bg-green-700">&#11015; Download CSV</button>`;
+        csvBar.querySelector("button").addEventListener("click", downloadCsv);
+        recentComplaints.parentNode.insertBefore(csvBar, recentComplaints);
         watchFilters(renderComplaints);
         renderComplaints();
     </script>
