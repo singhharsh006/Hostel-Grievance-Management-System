@@ -133,6 +133,7 @@
             <option value="newest">Newest first</option>
             <option value="oldest">Oldest first</option>
             <option value="priority">Highest priority</option>
+            <option value="affected">Most affected</option>
           </select></div>
       </div>
       <p id="resultCount" class="text-center text-sm text-gray-500 mt-4"></p>`;
@@ -172,8 +173,10 @@
 
   function sortComplaints(list, mode) {
     const time = c => new Date(c.createdAt).getTime();
+    const votes = c => Array.isArray(c.upvotes) ? c.upvotes.length : 0;
     return list.slice().sort((a, b) => {
       if (mode === "priority") return PRIORITY_RANK[priorityOf(b)] - PRIORITY_RANK[priorityOf(a)] || time(a) - time(b);
+      if (mode === "affected") return votes(b) - votes(a) || PRIORITY_RANK[priorityOf(b)] - PRIORITY_RANK[priorityOf(a)] || time(a) - time(b);
       if (mode === "oldest") return time(a) - time(b);
       return time(b) - time(a);
     });

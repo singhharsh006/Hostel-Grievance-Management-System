@@ -131,4 +131,32 @@ router.post("/reopen/:id", async (req, res) => {
     return res.redirect("/complaint/myComplaints");
   }
 });
+// "Me too" vote: dobara dabane par vote hat jata hai (toggle)
+router.post("/upvote/:id", async (req, res) => {
+  try {
+    const c = await Complaint.findOne({
+      _id: req.params.id,
+      hostel_no: req.user.hostel_no,
+    });
+    if (!c) return res.status(404).json({ ok: false, error: "Complaint not found" });
+
+    if (String(c.user) === String(req.user.id)) {
+      return res.status(400).json({ ok: false, error: "You cannot vote on your own complaint" });
+    }
+    if (c.status === "resolved") {
+      return res.status(400).json({ ok: false, error: "This complaint is already resolved" });
+    }
+
+    const already = c.upvotes.some((id) => String(id) === String(req.user.id));
+    const update = already
+      ? { $pull: { upvotes: req.user.id } }
+      : { $addToSet: { upvotes: req.user.id } };
+
+    const updated = await Complaint.findByIdAndUpdate(c._id, update, { new: true });
+    return res.json({ ok: true, voted: !already, count: updated.upvotes.length });
+  } catch (err) {
+    console.log("error while upvoting,", err);
+    return res.status(500).json({ ok: false, error: "Something went wrong" });
+  }
+});
 module.exports = router;

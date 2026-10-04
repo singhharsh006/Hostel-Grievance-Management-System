@@ -36,6 +36,8 @@ const complaintSchema = new mongoose.Schema({
   reopenCount: { type: Number, default: 0 },
   reopenedAt: { type: Date, default: null },
   reopenReason: { type: String, trim: true },
+  // ---- NEW: "Me too" upvotes (user ids) ----
+  upvotes: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
 });
 
 complaintSchema.pre("save", function (next) {

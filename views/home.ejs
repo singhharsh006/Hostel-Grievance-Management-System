@@ -228,7 +228,53 @@ const complaints = <%- JSON.stringify(complaints || []) %>;
 </div>
             </div>
         `;
+                            // ---- "Me too" button ----
+                const votes = Array.isArray(comp.upvotes) ? comp.upvotes.map(String) : [];
+                if (comp.meTooCount === undefined) comp.meTooCount = votes.length;
+                if (comp.meTooVoted === undefined) comp.meTooVoted = votes.includes(String(user.id));
+                const isOwn = String(comp.user._id) === String(user.id);
 
+                const meTooBar = document.createElement("div");
+                meTooBar.className = "flex justify-center items-center gap-3 mt-6";
+
+                if (isOwn) {
+                    // apni complaint par vote nahi, sirf count dikhao
+                    const info = document.createElement("span");
+                    info.className = "text-sm text-gray-500";
+                    info.textContent = comp.meTooCount + " student(s) affected";
+                    meTooBar.appendChild(info);
+                } else {
+                    const btn = document.createElement("button");
+                    btn.type = "button";
+
+                    const paint = () => {
+                        btn.textContent = (comp.meTooVoted ? "✓ Me too" : "👍 Me too") + " (" + comp.meTooCount + ")";
+                        btn.className = comp.meTooVoted
+                            ? "px-5 py-2 rounded-full font-semibold shadow bg-blue-600 text-white"
+                            : "px-5 py-2 rounded-full font-semibold shadow border border-blue-600 text-blue-600 bg-white hover:bg-blue-50";
+                    };
+                    paint();
+
+                    btn.addEventListener("click", async () => {
+                        btn.disabled = true;
+                        try {
+                            const res = await fetch("/complaint/upvote/" + comp._id, { method: "POST" });
+                            const out = await res.json();
+                            if (out.ok) {
+                                comp.meTooVoted = out.voted;
+                                comp.meTooCount = out.count;
+                                paint();
+                            } else {
+                                alert(out.error || "Could not save your vote");
+                            }
+                        } catch (e) {
+                            alert("Network error, try again");
+                        }
+                        btn.disabled = false;
+                    });
+                    meTooBar.appendChild(btn);
+                }
+                card.appendChild(meTooBar);
                 recentComplaints.appendChild(card);
             });
         }

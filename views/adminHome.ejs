@@ -208,6 +208,12 @@
 
                   ${updatePanel}
                 `;
+                // ---- "Me too" badge: kitne aur students affected ----
+                const affected = Array.isArray(comp.upvotes) ? comp.upvotes.length : 0;
+                if (affected > 0) {
+                    card.insertAdjacentHTML("beforeend",
+                        `<div class="mt-4 text-center"><span class="inline-block bg-orange-100 text-orange-700 px-4 py-1 rounded-full font-semibold shadow">🔥 ${affected} more student(s) also affected</span></div>`);
+                }
                 card.insertAdjacentHTML("beforeend", feedbackSummary(comp));
                 recentComplaints.appendChild(card);
             });
