@@ -9,6 +9,10 @@ const transporter =
     port: +(process.env.SMTP_PORT || 465),
     secure: (process.env.SMTP_PORT || "465") === "465",
     auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
+    family: 4, // IPv4 only: Render cannot reach Gmail over IPv6 (ENETUNREACH)
+    connectionTimeout: 10000,
+    greetingTimeout: 10000,
+    socketTimeout: 15000,
   });
 
 const esc = (s = "") =>
