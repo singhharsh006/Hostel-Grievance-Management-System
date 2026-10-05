@@ -1,19 +1,6 @@
-// Email notifications. If SMTP is not configured, it just logs and skips (app keeps working).
-const nodemailer = require("nodemailer");
-
-const enabled = !!(process.env.SMTP_USER && process.env.SMTP_PASS);
-const transporter =
-  enabled &&
-  nodemailer.createTransport({
-    host: process.env.SMTP_HOST || "smtp.gmail.com",
-    port: +(process.env.SMTP_PORT || 465),
-    secure: (process.env.SMTP_PORT || "465") === "465",
-    auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
-    family: 4, // IPv4 only: Render cannot reach Gmail over IPv6 (ENETUNREACH)
-    connectionTimeout: 10000,
-    greetingTimeout: 10000,
-    socketTimeout: 15000,
-  });
+// Email notifications via Brevo HTTP API (Render free plan blocks SMTP ports).
+// If BREVO_API_KEY / MAIL_FROM are not set, it just logs and skips (app keeps working).
+const enabled = !!(process.env.BREVO_API_KEY && process.env.MAIL_FROM);
 
 const esc = (s = "") =>
   String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -28,7 +15,26 @@ const wrap = (title, body) => `
 async function send(to, subject, html) {
   if (!enabled || !to) return console.log("[mail skipped]", subject, "->", to);
   try {
-    await transporter.sendMail({ from: `"Hostel Portal" <${process.env.SMTP_USER}>`, to, subject, html });
+    const res = await fetch("https://api.brevo.com/v3/smtp/email", {
+      method: "POST",
+      headers: {
+        "api-key": process.env.BREVO_API_KEY,
+        "content-type": "application/json",
+        accept: "application/json",
+      },
+      body: JSON.stringify({
+        sender: { name: "GLBITM Hostel Portal", email: process.env.MAIL_FROM },
+        to: [{ email: to }],
+        subject,
+        htmlContent: html,
+      }),
+      signal: AbortSignal.timeout(15000),
+    });
+    if (!res.ok) {
+      const text = await res.text();
+      console.error("[mail error]", res.status, text.slice(0, 200));
+      return;
+    }
     console.log("[mail sent]", subject, "->", to);
   } catch (e) {
     console.error("[mail error]", e.message);
