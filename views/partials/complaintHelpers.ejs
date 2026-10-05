@@ -15,9 +15,10 @@
       .replace(/'/g, "&#39;");
   }
 
-  // Only allow images that live in our own /uploads folder
+  // Only allow images from our own /uploads folder (old) or our Cloudinary account (new)
   function safeImg(p) {
-    return typeof p === "string" && p.indexOf("/uploads/") === 0 ? p : "";
+    if (typeof p !== "string") return "";
+    return p.indexOf("https://res.cloudinary.com/") === 0 || p.indexOf("/uploads/") === 0 ? p : "";
   }
 
   function formatDate(iso) {
